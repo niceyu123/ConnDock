@@ -1,0 +1,13 @@
+[package]
+name = "conndock-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+tokio.workspace = true
+russh.workspace = true
+russh-sftp.workspace = true
+zeroize.workspace = true

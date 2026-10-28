@@ -1,0 +1,1317 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		19323DAFADFFD9384B445734 /* ConnDockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 919F2C963C53305A374B57FF /* ConnDockKit */; };
+		19F022A9CAAC59818377CE10 /* CloudSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F1BCC75BEC520B18E1EFEC /* CloudSyncServiceTests.swift */; };
+		22D27748CDD44718E954E09D /* SSHTrustTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350BF1FC04976646DAC53E7E /* SSHTrustTests.swift */; };
+		2467AC439BE20FA13707D9A5 /* CloudSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344F37EE9ED2CF8D04076B6F /* CloudSyncTests.swift */; };
+		2C1D1FDAA54EB7B36C5E7B05 /* SessionStabilityIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81FF39D406E60171E31D926 /* SessionStabilityIntegrationTests.swift */; };
+		2FE944AC49140D04FEAEBB34 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7546C153ED76E629771382D9 /* PrivacyInfo.xcprivacy */; };
+		33805AED734B4B72688E1855 /* CloudSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F1BCC75BEC520B18E1EFEC /* CloudSyncServiceTests.swift */; };
+		41708ED4CEA5B6118E1EDDDE /* UIKitThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB02BC4EF754DE296B95843 /* UIKitThemeTests.swift */; };
+		431A017058DDBC2963C4B830 /* RemoteServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97D685CEEDFC1B58739B443 /* RemoteServicesTests.swift */; };
+		51132D8EBC867C12CA3BEDAC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DD2E746650E57F4E4D81AE2 /* InfoPlist.strings */; };
+		5E7E22E92DDC4FEC95CA966F /* MCPIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90861AF370F990696F29CC46 /* MCPIntegrationTests.swift */; };
+		68066C89F0D0051773FEAB9F /* FoundationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90DEEFF4E7A6AE51CA8E66F /* FoundationTests.swift */; };
+		6B34CA2DFA7A644A9B9D6EFE /* PhaseZeroUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64013AD6E0D2524E2B3222AB /* PhaseZeroUITests.swift */; };
+		6C84A9934F635BAB30BBA01A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 860FCCE97067B75B0A82C8D6 /* Assets.xcassets */; };
+		742FA7182475B8DB093C3867 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51D5635334F93A9E30F80685 /* Assets.xcassets */; };
+		79B0FB83BCCFD70EED07AF48 /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B548BF07D9D2632090316ED4 /* KeychainTests.swift */; };
+		85B7A32E2B808FF6ACC0EA23 /* SSHCoreBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 1720139CC462DE9E8862AADD /* SSHCoreBridge */; };
+		871EF1C28412B8150AA01260 /* SSHIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE9BEF3F84D87CED3BE62B7 /* SSHIntegrationTests.swift */; };
+		87D2A0DBDEB37D6B0FA7C55C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DD2E746650E57F4E4D81AE2 /* InfoPlist.strings */; };
+		8922EB97F0D47F97101397BA /* WorkspaceLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD16ED985801FB5280407672 /* WorkspaceLifecycleTests.swift */; };
+		894DE602B6EAA65DB26D32B2 /* RemoteServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97D685CEEDFC1B58739B443 /* RemoteServicesTests.swift */; };
+		8ACB3783E4A71CD4FEEAD5AC /* ConnDockApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0349E5DAEFAD7CDD4ABD481B /* ConnDockApp.swift */; };
+		8C3A514AE3DCE044B3354381 /* FoundationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90DEEFF4E7A6AE51CA8E66F /* FoundationTests.swift */; };
+		8F66AA7D3623508AD16BDCE7 /* MCPServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72997373EE00496F1106E6C /* MCPServiceTests.swift */; };
+		93901F650221DEF36EAD413E /* ConnDockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8D0EB5008603B64149769FDE /* ConnDockKit */; };
+		9A10A29BCFDB4390B8317D48 /* HostPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78059F211FE64868AA37F14 /* HostPersistenceTests.swift */; };
+		A00A9CC8C5C282D7D9532BBA /* PhaseZeroUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64013AD6E0D2524E2B3222AB /* PhaseZeroUITests.swift */; };
+		A47E0F88A398B6F7AACF6770 /* WorkspaceLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD16ED985801FB5280407672 /* WorkspaceLifecycleTests.swift */; };
+		AD7A5457088C7669FA8EB86A /* SSHIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE9BEF3F84D87CED3BE62B7 /* SSHIntegrationTests.swift */; };
+		B19BD82286AF384CF32B10F3 /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B548BF07D9D2632090316ED4 /* KeychainTests.swift */; };
+		B9673018C0FE56F50166BD03 /* CloudSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344F37EE9ED2CF8D04076B6F /* CloudSyncTests.swift */; };
+		CD513A394B8380757607A282 /* TerminalLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E519BF2E277DA236869FE6 /* TerminalLifecycleTests.swift */; };
+		CD75835C8AE218C98F2822F3 /* SSHCoreBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 6C6219995696249E9A56FD7D /* SSHCoreBridge */; };
+		CFD25B8506592E3A482B8959 /* MCPPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E9FB0AE0C3D2C73FF6436F /* MCPPolicyTests.swift */; };
+		D1E2B95F389C29B29457C859 /* UIKitThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB02BC4EF754DE296B95843 /* UIKitThemeTests.swift */; };
+		D2C0DADAA47A60841B243781 /* ConnDockApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 622D7C05FB0BF236D1BB9E17 /* ConnDockApp.swift */; };
+		D37300DA3090BD21820AFDFB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7546C153ED76E629771382D9 /* PrivacyInfo.xcprivacy */; };
+		D3CDF2827C0D7200627545EC /* MCPIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90861AF370F990696F29CC46 /* MCPIntegrationTests.swift */; };
+		D6133229127A68207A5DCB52 /* HostPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78059F211FE64868AA37F14 /* HostPersistenceTests.swift */; };
+		D78F87096228F2B9B835DFFD /* ConnDockKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CDA58786E9B80DEF87CA05 /* ConnDockKit */; };
+		D918B4DC5E183837DCE620D8 /* SSHTrustTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350BF1FC04976646DAC53E7E /* SSHTrustTests.swift */; };
+		DA9FF5D34FE1FAB7C68F63BB /* TerminalLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E519BF2E277DA236869FE6 /* TerminalLifecycleTests.swift */; };
+		EB2D93DC2F714B57BC154D5F /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 7E29B0BD19E50653F546CA95 /* SwiftTerm */; };
+		EBD2E70F3364507A7553B401 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 66DDF62C2A817B11B18A3C7F /* SwiftTerm */; };
+		F0A659DBF49B3CC948079598 /* ConnDockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 507D71B84EDB6067F057E282 /* ConnDockKit */; };
+		F1DF858F0387AF614C382F58 /* SessionStabilityIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81FF39D406E60171E31D926 /* SessionStabilityIntegrationTests.swift */; };
+		F27FCD76580025D6CCE2E516 /* MCPPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E9FB0AE0C3D2C73FF6436F /* MCPPolicyTests.swift */; };
+		F381FEC78F945D243FFC2A7E /* MCPServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72997373EE00496F1106E6C /* MCPServiceTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7CB88ADFBF21BE0898AA00A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 81912B41F868BFF0873AA8EB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9D15CFF2997400311BFB4BB8;
+			remoteInfo = "ConnDock-iOS";
+		};
+		8D36679FF4A3A36FB50B8AB9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 81912B41F868BFF0873AA8EB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A532120FABC528BFE9FA6958;
+			remoteInfo = "ConnDock-macOS";
+		};
+		C30E5446B079FD3FDDEB4C42 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 81912B41F868BFF0873AA8EB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9D15CFF2997400311BFB4BB8;
+			remoteInfo = "ConnDock-iOS";
+		};
+		F903175057A29F226650DD34 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 81912B41F868BFF0873AA8EB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A532120FABC528BFE9FA6958;
+			remoteInfo = "ConnDock-macOS";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0349E5DAEFAD7CDD4ABD481B /* ConnDockApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnDockApp.swift; sourceTree = "<group>"; };
+		1ED7DEB8086B8129F7C3C012 /* ConnDockTests-macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ConnDockTests-macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		255892686F2A6BCCC055B345 /* ConnDock-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ConnDock-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F8436588EE268CED5DE19F9 /* ConnDockUITests-iOS.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "ConnDockUITests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		344F37EE9ED2CF8D04076B6F /* CloudSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncTests.swift; sourceTree = "<group>"; };
+		350BF1FC04976646DAC53E7E /* SSHTrustTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHTrustTests.swift; sourceTree = "<group>"; };
+		51D5635334F93A9E30F80685 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5299FD441BFF8B377566DFDC /* ConnDock-Local.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ConnDock-Local.entitlements"; sourceTree = "<group>"; };
+		58E519BF2E277DA236869FE6 /* TerminalLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalLifecycleTests.swift; sourceTree = "<group>"; };
+		5E43D9677125C5F3B43D176E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		616AA985C1D9D6E2DE929DDC /* ConnDock-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "ConnDock-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		622D7C05FB0BF236D1BB9E17 /* ConnDockApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnDockApp.swift; sourceTree = "<group>"; };
+		64013AD6E0D2524E2B3222AB /* PhaseZeroUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhaseZeroUITests.swift; sourceTree = "<group>"; };
+		7546C153ED76E629771382D9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		756A952014635D4022A66FE4 /* ConnDockTests-iOS.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "ConnDockTests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		80498FE27FD6EF988AA60411 /* SSHCoreBridge */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SSHCoreBridge; path = Packages/SSHCoreBridge; sourceTree = SOURCE_ROOT; };
+		82F7CD89864A2D1F9C063132 /* ConnDock-Local.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ConnDock-Local.entitlements"; sourceTree = "<group>"; };
+		860FCCE97067B75B0A82C8D6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		90861AF370F990696F29CC46 /* MCPIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPIntegrationTests.swift; sourceTree = "<group>"; };
+		9138E0F35E639FC466A3A3EF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9AB02BC4EF754DE296B95843 /* UIKitThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitThemeTests.swift; sourceTree = "<group>"; };
+		9FD31FCF5916696356E05436 /* apple */ = {isa = PBXFileReference; lastKnownFileType = folder; name = apple; path = .; sourceTree = SOURCE_ROOT; };
+		A81FF39D406E60171E31D926 /* SessionStabilityIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStabilityIntegrationTests.swift; sourceTree = "<group>"; };
+		A864CA7E3ADD8E2F98FF9550 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A8B1087D0BAC4B71EE060E02 /* ConnDock.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ConnDock.entitlements; sourceTree = "<group>"; };
+		B548BF07D9D2632090316ED4 /* KeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
+		B6D9142064E64CD5BD284B2E /* ConnDockUITests-macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ConnDockUITests-macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B90DEEFF4E7A6AE51CA8E66F /* FoundationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationTests.swift; sourceTree = "<group>"; };
+		B97D685CEEDFC1B58739B443 /* RemoteServicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteServicesTests.swift; sourceTree = "<group>"; };
+		B9D775E77F68726DCBAC914C /* ConnDock.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ConnDock.entitlements; sourceTree = "<group>"; };
+		C3E9FB0AE0C3D2C73FF6436F /* MCPPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPPolicyTests.swift; sourceTree = "<group>"; };
+		C72997373EE00496F1106E6C /* MCPServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPServiceTests.swift; sourceTree = "<group>"; };
+		C78059F211FE64868AA37F14 /* HostPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostPersistenceTests.swift; sourceTree = "<group>"; };
+		CD16ED985801FB5280407672 /* WorkspaceLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceLifecycleTests.swift; sourceTree = "<group>"; };
+		D1F1BCC75BEC520B18E1EFEC /* CloudSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncServiceTests.swift; sourceTree = "<group>"; };
+		D5C036EC1A23E54823D281AC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		FEE9BEF3F84D87CED3BE62B7 /* SSHIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHIntegrationTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0B1E2285BDF3771BDC43A5D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0A659DBF49B3CC948079598 /* ConnDockKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1C7F62CB4DC6D68A7E2DD628 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				93901F650221DEF36EAD413E /* ConnDockKit in Frameworks */,
+				CD75835C8AE218C98F2822F3 /* SSHCoreBridge in Frameworks */,
+				EBD2E70F3364507A7553B401 /* SwiftTerm in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		656951264690E6C78DFE5F7E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				19323DAFADFFD9384B445734 /* ConnDockKit in Frameworks */,
+				85B7A32E2B808FF6ACC0EA23 /* SSHCoreBridge in Frameworks */,
+				EB2D93DC2F714B57BC154D5F /* SwiftTerm in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E95E3DFB30834336F3E011B7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D78F87096228F2B9B835DFFD /* ConnDockKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1B09004BCF027752495821A7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				616AA985C1D9D6E2DE929DDC /* ConnDock-iOS.app */,
+				255892686F2A6BCCC055B345 /* ConnDock-macOS.app */,
+				756A952014635D4022A66FE4 /* ConnDockTests-iOS.xctest */,
+				1ED7DEB8086B8129F7C3C012 /* ConnDockTests-macOS.xctest */,
+				2F8436588EE268CED5DE19F9 /* ConnDockUITests-iOS.xctest */,
+				B6D9142064E64CD5BD284B2E /* ConnDockUITests-macOS.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1BEAE0F1B0E8370AD433FECB /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				51D5635334F93A9E30F80685 /* Assets.xcassets */,
+				82F7CD89864A2D1F9C063132 /* ConnDock-Local.entitlements */,
+				A8B1087D0BAC4B71EE060E02 /* ConnDock.entitlements */,
+				0349E5DAEFAD7CDD4ABD481B /* ConnDockApp.swift */,
+				D5C036EC1A23E54823D281AC /* Info.plist */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		25FEF2A4AE5FF91F3323CFBA /* PermissionLocalizations */ = {
+			isa = PBXGroup;
+			children = (
+				5DD2E746650E57F4E4D81AE2 /* InfoPlist.strings */,
+			);
+			path = PermissionLocalizations;
+			sourceTree = "<group>";
+		};
+		46C4126EF5BF266E95D4DF1B /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				860FCCE97067B75B0A82C8D6 /* Assets.xcassets */,
+				5299FD441BFF8B377566DFDC /* ConnDock-Local.entitlements */,
+				B9D775E77F68726DCBAC914C /* ConnDock.entitlements */,
+				622D7C05FB0BF236D1BB9E17 /* ConnDockApp.swift */,
+				A864CA7E3ADD8E2F98FF9550 /* Info.plist */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		692FCCB6DBA3C4E6083E6366 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				25FEF2A4AE5FF91F3323CFBA /* PermissionLocalizations */,
+			);
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		9233B727687B0A45D5D3F97C /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				9FD31FCF5916696356E05436 /* apple */,
+				80498FE27FD6EF988AA60411 /* SSHCoreBridge */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		9929FA7C353902410204662A /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				64013AD6E0D2524E2B3222AB /* PhaseZeroUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
+		B10FEB5303EA9D0A7F073BDB /* Apps */ = {
+			isa = PBXGroup;
+			children = (
+				1BEAE0F1B0E8370AD433FECB /* iOS */,
+				46C4126EF5BF266E95D4DF1B /* macOS */,
+			);
+			path = Apps;
+			sourceTree = "<group>";
+		};
+		B7AB1525F3489B359375A9DB /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				D1F1BCC75BEC520B18E1EFEC /* CloudSyncServiceTests.swift */,
+				344F37EE9ED2CF8D04076B6F /* CloudSyncTests.swift */,
+				B90DEEFF4E7A6AE51CA8E66F /* FoundationTests.swift */,
+				C78059F211FE64868AA37F14 /* HostPersistenceTests.swift */,
+				B548BF07D9D2632090316ED4 /* KeychainTests.swift */,
+				90861AF370F990696F29CC46 /* MCPIntegrationTests.swift */,
+				C3E9FB0AE0C3D2C73FF6436F /* MCPPolicyTests.swift */,
+				C72997373EE00496F1106E6C /* MCPServiceTests.swift */,
+				B97D685CEEDFC1B58739B443 /* RemoteServicesTests.swift */,
+				A81FF39D406E60171E31D926 /* SessionStabilityIntegrationTests.swift */,
+				FEE9BEF3F84D87CED3BE62B7 /* SSHIntegrationTests.swift */,
+				350BF1FC04976646DAC53E7E /* SSHTrustTests.swift */,
+				58E519BF2E277DA236869FE6 /* TerminalLifecycleTests.swift */,
+				9AB02BC4EF754DE296B95843 /* UIKitThemeTests.swift */,
+				CD16ED985801FB5280407672 /* WorkspaceLifecycleTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		C9F7126F04E3882C313E7D2E /* Privacy */ = {
+			isa = PBXGroup;
+			children = (
+				7546C153ED76E629771382D9 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Privacy;
+			sourceTree = "<group>";
+		};
+		F1E9713881592EEE7A3EFF17 = {
+			isa = PBXGroup;
+			children = (
+				B10FEB5303EA9D0A7F073BDB /* Apps */,
+				692FCCB6DBA3C4E6083E6366 /* Generated */,
+				9233B727687B0A45D5D3F97C /* Packages */,
+				C9F7126F04E3882C313E7D2E /* Privacy */,
+				B7AB1525F3489B359375A9DB /* Tests */,
+				9929FA7C353902410204662A /* UITests */,
+				1B09004BCF027752495821A7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		550B0A6DCAF628AB0D5857F3 /* ConnDockTests-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 545C3AFE6946A98FD81ACC68 /* Build configuration list for PBXNativeTarget "ConnDockTests-iOS" */;
+			buildPhases = (
+				BC3CEA1AD642563D3104715A /* Sources */,
+				1C7F62CB4DC6D68A7E2DD628 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3025F3FB159851D388D2AD93 /* PBXTargetDependency */,
+			);
+			name = "ConnDockTests-iOS";
+			packageProductDependencies = (
+				8D0EB5008603B64149769FDE /* ConnDockKit */,
+				6C6219995696249E9A56FD7D /* SSHCoreBridge */,
+				66DDF62C2A817B11B18A3C7F /* SwiftTerm */,
+			);
+			productName = "ConnDockTests-iOS";
+			productReference = 756A952014635D4022A66FE4 /* ConnDockTests-iOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		5EED21562D68BAFF96540C4D /* ConnDockUITests-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BE9C9E52EE455B29FE5ECF6C /* Build configuration list for PBXNativeTarget "ConnDockUITests-iOS" */;
+			buildPhases = (
+				9CB4A049409993F1E6FBF773 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3635DF5DC7BEA4A58FA0BE04 /* PBXTargetDependency */,
+			);
+			name = "ConnDockUITests-iOS";
+			packageProductDependencies = (
+			);
+			productName = "ConnDockUITests-iOS";
+			productReference = 2F8436588EE268CED5DE19F9 /* ConnDockUITests-iOS.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		798490B5401AC9452039EFDA /* ConnDockUITests-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 399A3E1D37086933DD9EAB82 /* Build configuration list for PBXNativeTarget "ConnDockUITests-macOS" */;
+			buildPhases = (
+				A2392438308E6E585A9E5604 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				078D01AB8E0CCCAB74CD5004 /* PBXTargetDependency */,
+			);
+			name = "ConnDockUITests-macOS";
+			packageProductDependencies = (
+			);
+			productName = "ConnDockUITests-macOS";
+			productReference = B6D9142064E64CD5BD284B2E /* ConnDockUITests-macOS.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		88D536928A2CF6E015BA0B2A /* ConnDockTests-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D5FCA14285D0D223DEFFD24 /* Build configuration list for PBXNativeTarget "ConnDockTests-macOS" */;
+			buildPhases = (
+				01909921005AEF58F18419DE /* Sources */,
+				656951264690E6C78DFE5F7E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				30B368CC9ACC3F18FC854B37 /* PBXTargetDependency */,
+			);
+			name = "ConnDockTests-macOS";
+			packageProductDependencies = (
+				919F2C963C53305A374B57FF /* ConnDockKit */,
+				1720139CC462DE9E8862AADD /* SSHCoreBridge */,
+				7E29B0BD19E50653F546CA95 /* SwiftTerm */,
+			);
+			productName = "ConnDockTests-macOS";
+			productReference = 1ED7DEB8086B8129F7C3C012 /* ConnDockTests-macOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		9D15CFF2997400311BFB4BB8 /* ConnDock-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1CAB4CA8EA24B06A0F98037F /* Build configuration list for PBXNativeTarget "ConnDock-iOS" */;
+			buildPhases = (
+				6329C99284CCBBC84EEC10F2 /* Sources */,
+				F0363B362A759CAD533C0140 /* Resources */,
+				E95E3DFB30834336F3E011B7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ConnDock-iOS";
+			packageProductDependencies = (
+				B6CDA58786E9B80DEF87CA05 /* ConnDockKit */,
+			);
+			productName = "ConnDock-iOS";
+			productReference = 616AA985C1D9D6E2DE929DDC /* ConnDock-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A532120FABC528BFE9FA6958 /* ConnDock-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B2139429B163E31577DE0737 /* Build configuration list for PBXNativeTarget "ConnDock-macOS" */;
+			buildPhases = (
+				05AF6B21652613140ED6AF34 /* Sources */,
+				B5C3A5F5FBE53F6C376AB1A6 /* Resources */,
+				0B1E2285BDF3771BDC43A5D5 /* Frameworks */,
+				0D43E1236FAB78E0F382B8FA /* Build and sign macOS MCP helper */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ConnDock-macOS";
+			packageProductDependencies = (
+				507D71B84EDB6067F057E282 /* ConnDockKit */,
+			);
+			productName = "ConnDock-macOS";
+			productReference = 255892686F2A6BCCC055B345 /* ConnDock-macOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		81912B41F868BFF0873AA8EB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					550B0A6DCAF628AB0D5857F3 = {
+						ProvisioningStyle = Automatic;
+					};
+					5EED21562D68BAFF96540C4D = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = 9D15CFF2997400311BFB4BB8;
+					};
+					798490B5401AC9452039EFDA = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = A532120FABC528BFE9FA6958;
+					};
+					88D536928A2CF6E015BA0B2A = {
+						ProvisioningStyle = Automatic;
+					};
+					9D15CFF2997400311BFB4BB8 = {
+						ProvisioningStyle = Automatic;
+					};
+					A532120FABC528BFE9FA6958 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = B3831DA4C284A65FD06B792F /* Build configuration list for PBXProject "ConnDock" */;
+			developmentRegion = "zh-Hans";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				"zh-Hans",
+			);
+			mainGroup = F1E9713881592EEE7A3EFF17;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9CF7792AFAF693D1146C698A /* XCRemoteSwiftPackageReference "SwiftTerm" */,
+				55FFA26708780E9FC1792E07 /* XCLocalSwiftPackageReference "." */,
+				F671DE5ACADA858928A8F3A0 /* XCLocalSwiftPackageReference "Packages/SSHCoreBridge" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1B09004BCF027752495821A7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A532120FABC528BFE9FA6958 /* ConnDock-macOS */,
+				9D15CFF2997400311BFB4BB8 /* ConnDock-iOS */,
+				88D536928A2CF6E015BA0B2A /* ConnDockTests-macOS */,
+				550B0A6DCAF628AB0D5857F3 /* ConnDockTests-iOS */,
+				798490B5401AC9452039EFDA /* ConnDockUITests-macOS */,
+				5EED21562D68BAFF96540C4D /* ConnDockUITests-iOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B5C3A5F5FBE53F6C376AB1A6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6C84A9934F635BAB30BBA01A /* Assets.xcassets in Resources */,
+				51132D8EBC867C12CA3BEDAC /* InfoPlist.strings in Resources */,
+				D37300DA3090BD21820AFDFB /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F0363B362A759CAD533C0140 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				742FA7182475B8DB093C3867 /* Assets.xcassets in Resources */,
+				87D2A0DBDEB37D6B0FA7C55C /* InfoPlist.strings in Resources */,
+				2FE944AC49140D04FEAEBB34 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0D43E1236FAB78E0F382B8FA /* Build and sign macOS MCP helper */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build and sign macOS MCP helper";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$SRCROOT/../scripts/embed-mcp-helper.sh\"";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		01909921005AEF58F18419DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				33805AED734B4B72688E1855 /* CloudSyncServiceTests.swift in Sources */,
+				B9673018C0FE56F50166BD03 /* CloudSyncTests.swift in Sources */,
+				68066C89F0D0051773FEAB9F /* FoundationTests.swift in Sources */,
+				9A10A29BCFDB4390B8317D48 /* HostPersistenceTests.swift in Sources */,
+				B19BD82286AF384CF32B10F3 /* KeychainTests.swift in Sources */,
+				D3CDF2827C0D7200627545EC /* MCPIntegrationTests.swift in Sources */,
+				F27FCD76580025D6CCE2E516 /* MCPPolicyTests.swift in Sources */,
+				F381FEC78F945D243FFC2A7E /* MCPServiceTests.swift in Sources */,
+				894DE602B6EAA65DB26D32B2 /* RemoteServicesTests.swift in Sources */,
+				AD7A5457088C7669FA8EB86A /* SSHIntegrationTests.swift in Sources */,
+				22D27748CDD44718E954E09D /* SSHTrustTests.swift in Sources */,
+				F1DF858F0387AF614C382F58 /* SessionStabilityIntegrationTests.swift in Sources */,
+				CD513A394B8380757607A282 /* TerminalLifecycleTests.swift in Sources */,
+				41708ED4CEA5B6118E1EDDDE /* UIKitThemeTests.swift in Sources */,
+				8922EB97F0D47F97101397BA /* WorkspaceLifecycleTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		05AF6B21652613140ED6AF34 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2C0DADAA47A60841B243781 /* ConnDockApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6329C99284CCBBC84EEC10F2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8ACB3783E4A71CD4FEEAD5AC /* ConnDockApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9CB4A049409993F1E6FBF773 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B34CA2DFA7A644A9B9D6EFE /* PhaseZeroUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2392438308E6E585A9E5604 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00A9CC8C5C282D7D9532BBA /* PhaseZeroUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BC3CEA1AD642563D3104715A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				19F022A9CAAC59818377CE10 /* CloudSyncServiceTests.swift in Sources */,
+				2467AC439BE20FA13707D9A5 /* CloudSyncTests.swift in Sources */,
+				8C3A514AE3DCE044B3354381 /* FoundationTests.swift in Sources */,
+				D6133229127A68207A5DCB52 /* HostPersistenceTests.swift in Sources */,
+				79B0FB83BCCFD70EED07AF48 /* KeychainTests.swift in Sources */,
+				5E7E22E92DDC4FEC95CA966F /* MCPIntegrationTests.swift in Sources */,
+				CFD25B8506592E3A482B8959 /* MCPPolicyTests.swift in Sources */,
+				8F66AA7D3623508AD16BDCE7 /* MCPServiceTests.swift in Sources */,
+				431A017058DDBC2963C4B830 /* RemoteServicesTests.swift in Sources */,
+				871EF1C28412B8150AA01260 /* SSHIntegrationTests.swift in Sources */,
+				D918B4DC5E183837DCE620D8 /* SSHTrustTests.swift in Sources */,
+				2C1D1FDAA54EB7B36C5E7B05 /* SessionStabilityIntegrationTests.swift in Sources */,
+				DA9FF5D34FE1FAB7C68F63BB /* TerminalLifecycleTests.swift in Sources */,
+				D1E2B95F389C29B29457C859 /* UIKitThemeTests.swift in Sources */,
+				A47E0F88A398B6F7AACF6770 /* WorkspaceLifecycleTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		078D01AB8E0CCCAB74CD5004 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A532120FABC528BFE9FA6958 /* ConnDock-macOS */;
+			targetProxy = 8D36679FF4A3A36FB50B8AB9 /* PBXContainerItemProxy */;
+		};
+		3025F3FB159851D388D2AD93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9D15CFF2997400311BFB4BB8 /* ConnDock-iOS */;
+			targetProxy = C30E5446B079FD3FDDEB4C42 /* PBXContainerItemProxy */;
+		};
+		30B368CC9ACC3F18FC854B37 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A532120FABC528BFE9FA6958 /* ConnDock-macOS */;
+			targetProxy = F903175057A29F226650DD34 /* PBXContainerItemProxy */;
+		};
+		3635DF5DC7BEA4A58FA0BE04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9D15CFF2997400311BFB4BB8 /* ConnDock-iOS */;
+			targetProxy = 7CB88ADFBF21BE0898AA00A1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		5DD2E746650E57F4E4D81AE2 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9138E0F35E639FC466A3A3EF /* en */,
+				5E43D9677125C5F3B43D176E /* zh-Hans */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		166080DEF7923197CEC1D8DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock.macOS.uitests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = "ConnDock-macOS";
+			};
+			name = Release;
+		};
+		17B9D5AE98999729F2BDF0F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock.iOS.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ConnDock.app/ConnDock";
+			};
+			name = Release;
+		};
+		24A2EFAFB06C69C946EF3039 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock.iOS.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ConnDock.app/ConnDock";
+			};
+			name = Debug;
+		};
+		27B0579B09BD1DE34A3C1DA1 /* Local */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Apps/macOS/ConnDock-Local.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				CONNDOCK_MCP_USE_APP_GROUP = NO;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				EXECUTABLE_NAME = ConnDock;
+				INFOPLIST_FILE = Apps/macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.SSHClient.macOS;
+				PRODUCT_MODULE_NAME = ConnDock;
+				PRODUCT_NAME = ConnDock;
+				SDKROOT = macosx;
+			};
+			name = Local;
+		};
+		318BED70438DF96A177BD155 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock.macOS.uitests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = "ConnDock-macOS";
+			};
+			name = Debug;
+		};
+		41178BE59A77DC2FB39D982C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CONNDOCK_CLOUDKIT_ENABLED = YES;
+				CONNDOCK_CLOUDKIT_ENVIRONMENT = Development;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 86HC8YA388;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				EXCLUDED_ARCHS = x86_64;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		47600450EEA81872AAC2C948 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock.macOS.tests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ConnDock.app/Contents/MacOS/ConnDock";
+			};
+			name = Release;
+		};
+		4C7525653EED31BB95879F81 /* Local */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.SSHClient.iOS.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ConnDock.app/ConnDock";
+			};
+			name = Local;
+		};
+		510E4547F86AACCAF99F5A60 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Apps/iOS/ConnDock.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				EXECUTABLE_NAME = ConnDock;
+				INFOPLIST_FILE = Apps/iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock;
+				PRODUCT_MODULE_NAME = ConnDock;
+				PRODUCT_NAME = ConnDock;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		54301C38875C4BBBDD01A7AC /* Local */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Apps/iOS/ConnDock-Local.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				EXECUTABLE_NAME = ConnDock;
+				INFOPLIST_FILE = Apps/iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.SSHClient.iOS;
+				PRODUCT_MODULE_NAME = ConnDock;
+				PRODUCT_NAME = ConnDock;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Local;
+		};
+		5F3C1B147DEDEE8853FCE341 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Apps/macOS/ConnDock.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONNDOCK_MCP_USE_APP_GROUP = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				EXECUTABLE_NAME = ConnDock;
+				INFOPLIST_FILE = Apps/macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock;
+				PRODUCT_MODULE_NAME = ConnDock;
+				PRODUCT_NAME = ConnDock;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		85634ECD36E1003CE0297BEB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Apps/macOS/ConnDock.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONNDOCK_MCP_USE_APP_GROUP = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				EXECUTABLE_NAME = ConnDock;
+				INFOPLIST_FILE = Apps/macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock;
+				PRODUCT_MODULE_NAME = ConnDock;
+				PRODUCT_NAME = ConnDock;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9065E7EAFBAA32D0439649E2 /* Local */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.SSHClient.iOS.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "ConnDock-iOS";
+			};
+			name = Local;
+		};
+		C057C7EE63D87F1BEC1FDB56 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock.iOS.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "ConnDock-iOS";
+			};
+			name = Debug;
+		};
+		C46DB4A03DB5CCD99EC68E64 /* Local */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CONNDOCK_CLOUDKIT_ENABLED = NO;
+				CONNDOCK_CLOUDKIT_ENVIRONMENT = Development;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				EXCLUDED_ARCHS = x86_64;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Local;
+		};
+		D07A585A56A7AADF613C8FF2 /* Local */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.SSHClient.macOS.uitests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = "ConnDock-macOS";
+			};
+			name = Local;
+		};
+		D0821026C16317BE3D3D640F /* Local */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.SSHClient.macOS.tests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ConnDock.app/Contents/MacOS/ConnDock";
+			};
+			name = Local;
+		};
+		E7391D52940A88679859133E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CONNDOCK_CLOUDKIT_ENABLED = YES;
+				CONNDOCK_CLOUDKIT_ENVIRONMENT = Production;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 86HC8YA388;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				EXCLUDED_ARCHS = x86_64;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		EE1E3363D32033B1207641A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock.macOS.tests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ConnDock.app/Contents/MacOS/ConnDock";
+			};
+			name = Debug;
+		};
+		F4F1EEEABA8BD65407ED7955 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock.iOS.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "ConnDock-iOS";
+			};
+			name = Release;
+		};
+		FFAEE68CF221009E6B279206 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Apps/iOS/ConnDock.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				EXECUTABLE_NAME = ConnDock;
+				INFOPLIST_FILE = Apps/iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruohai.conndock;
+				PRODUCT_MODULE_NAME = ConnDock;
+				PRODUCT_NAME = ConnDock;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1CAB4CA8EA24B06A0F98037F /* Build configuration list for PBXNativeTarget "ConnDock-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				510E4547F86AACCAF99F5A60 /* Debug */,
+				54301C38875C4BBBDD01A7AC /* Local */,
+				FFAEE68CF221009E6B279206 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2D5FCA14285D0D223DEFFD24 /* Build configuration list for PBXNativeTarget "ConnDockTests-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE1E3363D32033B1207641A1 /* Debug */,
+				D0821026C16317BE3D3D640F /* Local */,
+				47600450EEA81872AAC2C948 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		399A3E1D37086933DD9EAB82 /* Build configuration list for PBXNativeTarget "ConnDockUITests-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				318BED70438DF96A177BD155 /* Debug */,
+				D07A585A56A7AADF613C8FF2 /* Local */,
+				166080DEF7923197CEC1D8DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		545C3AFE6946A98FD81ACC68 /* Build configuration list for PBXNativeTarget "ConnDockTests-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24A2EFAFB06C69C946EF3039 /* Debug */,
+				4C7525653EED31BB95879F81 /* Local */,
+				17B9D5AE98999729F2BDF0F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B2139429B163E31577DE0737 /* Build configuration list for PBXNativeTarget "ConnDock-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85634ECD36E1003CE0297BEB /* Debug */,
+				27B0579B09BD1DE34A3C1DA1 /* Local */,
+				5F3C1B147DEDEE8853FCE341 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B3831DA4C284A65FD06B792F /* Build configuration list for PBXProject "ConnDock" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41178BE59A77DC2FB39D982C /* Debug */,
+				C46DB4A03DB5CCD99EC68E64 /* Local */,
+				E7391D52940A88679859133E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BE9C9E52EE455B29FE5ECF6C /* Build configuration list for PBXNativeTarget "ConnDockUITests-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C057C7EE63D87F1BEC1FDB56 /* Debug */,
+				9065E7EAFBAA32D0439649E2 /* Local */,
+				F4F1EEEABA8BD65407ED7955 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		55FFA26708780E9FC1792E07 /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+		F671DE5ACADA858928A8F3A0 /* XCLocalSwiftPackageReference "Packages/SSHCoreBridge" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SSHCoreBridge;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9CF7792AFAF693D1146C698A /* XCRemoteSwiftPackageReference "SwiftTerm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/migueldeicaza/SwiftTerm.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.19.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1720139CC462DE9E8862AADD /* SSHCoreBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SSHCoreBridge;
+		};
+		507D71B84EDB6067F057E282 /* ConnDockKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ConnDockKit;
+		};
+		66DDF62C2A817B11B18A3C7F /* SwiftTerm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9CF7792AFAF693D1146C698A /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = SwiftTerm;
+		};
+		6C6219995696249E9A56FD7D /* SSHCoreBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SSHCoreBridge;
+		};
+		7E29B0BD19E50653F546CA95 /* SwiftTerm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9CF7792AFAF693D1146C698A /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = SwiftTerm;
+		};
+		8D0EB5008603B64149769FDE /* ConnDockKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ConnDockKit;
+		};
+		919F2C963C53305A374B57FF /* ConnDockKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ConnDockKit;
+		};
+		B6CDA58786E9B80DEF87CA05 /* ConnDockKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ConnDockKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 81912B41F868BFF0873AA8EB /* Project object */;
+}

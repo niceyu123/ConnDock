@@ -1,0 +1,21 @@
+[workspace]
+members = ["crates/ssh-core", "crates/apple-ffi", "crates/mcp-server"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+license = "UNLICENSED"
+publish = false
+
+[workspace.dependencies]
+uniffi = "=0.32.2"
+tokio = { version = "=1.48.0", features = ["rt-multi-thread", "sync", "time", "macros", "net", "io-util"] }
+russh = { version = "=0.65.0", default-features = false, features = ["ring", "rsa"] }
+russh-sftp = "=3.0.1"
+zeroize = "=1.9.1"
+
+[profile.release]
+lto = "thin"
+strip = "debuginfo"

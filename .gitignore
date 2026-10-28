@@ -1,0 +1,19 @@
+.DS_Store
+.build/
+build/
+target/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+apple/Packages/SSHCoreBridge/Artifacts/
+apple/Packages/SSHCoreBridge/Sources/SSHCoreBridge/Generated/
+*.xcresult/
+.swiftpm/
+!Package.resolved
+
+apple/Generated/
+__pycache__/
+
+# Local source material and UI captures are not part of the public repository.
+/SSHClient_Codex_开发任务书_V1.2_含MCP_国际化主题.md
+/docs/screenshots/

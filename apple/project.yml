@@ -1,0 +1,225 @@
+name: ConnDock
+configs:
+  Debug: debug
+  Release: release
+  Local: debug
+options:
+  minimumXcodeGenVersion: 2.46.0
+  developmentLanguage: zh-Hans
+  knownRegions: [zh-Hans, en, Base]
+  deploymentTarget:
+    macOS: '14.0'
+    iOS: '17.0'
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: '6.0'
+    SWIFT_STRICT_CONCURRENCY: complete
+    ARCHS: arm64
+    EXCLUDED_ARCHS: x86_64
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: 86HC8YA388
+    CONNDOCK_CLOUDKIT_ENABLED: YES
+    CONNDOCK_CLOUDKIT_ENVIRONMENT: Development
+    MARKETING_VERSION: 0.1.1
+    CURRENT_PROJECT_VERSION: 1
+    GENERATE_INFOPLIST_FILE: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]': x86_64
+  configs:
+    Release:
+      CONNDOCK_CLOUDKIT_ENVIRONMENT: Production
+    Local:
+      DEVELOPMENT_TEAM: ''
+      CODE_SIGN_IDENTITY: '-'
+      CONNDOCK_CLOUDKIT_ENABLED: NO
+packages:
+  ConnDockKit:
+    path: .
+  SSHCoreBridge:
+    path: Packages/SSHCoreBridge
+  SwiftTerm:
+    url: https://github.com/migueldeicaza/SwiftTerm.git
+    exactVersion: 1.19.0
+targets:
+  ConnDock-macOS:
+    type: application
+    platform: macOS
+    sources:
+      - path: Apps/macOS
+        excludes: [MCPHelper.entitlements]
+      - path: Privacy/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: Generated/PermissionLocalizations
+        buildPhase: resources
+    postBuildScripts:
+      - name: Build and sign macOS MCP helper
+        script: '"$SRCROOT/../scripts/embed-mcp-helper.sh"'
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+    dependencies:
+      - package: ConnDockKit
+    settings:
+      base:
+        PRODUCT_NAME: ConnDock
+        PRODUCT_MODULE_NAME: ConnDock
+        EXECUTABLE_NAME: ConnDock
+        PRODUCT_BUNDLE_IDENTIFIER: com.ruohai.conndock
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: Apps/macOS/ConnDock.entitlements
+        ENABLE_APP_SANDBOX: YES
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        CONNDOCK_MCP_USE_APP_GROUP: YES
+        COMBINE_HIDPI_IMAGES: YES
+      configs:
+        Local:
+          PRODUCT_BUNDLE_IDENTIFIER: local.SSHClient.macOS
+          CONNDOCK_MCP_USE_APP_GROUP: NO
+          CODE_SIGN_ENTITLEMENTS: Apps/macOS/ConnDock-Local.entitlements
+    info:
+      path: Apps/macOS/Info.plist
+      properties:
+        CFBundleDisplayName: ConnDock
+        CFBundleName: ConnDock
+        CFBundleShortVersionString: '$(MARKETING_VERSION)'
+        CFBundleVersion: '$(CURRENT_PROJECT_VERSION)'
+        ITSAppUsesNonExemptEncryption: false
+        CFBundleDevelopmentRegion: zh-Hans
+        CFBundleLocalizations: [zh-Hans, en]
+        ConnDockBuildConfiguration: '$(CONFIGURATION)'
+        NSLocalNetworkUsageDescription: NSLocalNetworkUsageDescription
+        ConnDockCloudKitEnabled: '$(CONNDOCK_CLOUDKIT_ENABLED)'
+        ConnDockCloudKitContainer: iCloud.com.ruohai.conndock
+        ConnDockCloudKitTeam: 86HC8YA388
+        LSApplicationCategoryType: public.app-category.developer-tools
+        ConnDockMCPUseAppGroup: '$(CONNDOCK_MCP_USE_APP_GROUP)'
+  ConnDock-iOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: Apps/iOS
+      - path: Privacy/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: Generated/PermissionLocalizations
+        buildPhase: resources
+    dependencies:
+      - package: ConnDockKit
+    settings:
+      base:
+        PRODUCT_NAME: ConnDock
+        PRODUCT_MODULE_NAME: ConnDock
+        EXECUTABLE_NAME: ConnDock
+        PRODUCT_BUNDLE_IDENTIFIER: com.ruohai.conndock
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: '1,2'
+        SUPPORTS_MACCATALYST: NO
+        CODE_SIGN_ENTITLEMENTS: Apps/iOS/ConnDock.entitlements
+      configs:
+        Local:
+          PRODUCT_BUNDLE_IDENTIFIER: local.SSHClient.iOS
+          CODE_SIGN_ENTITLEMENTS: Apps/iOS/ConnDock-Local.entitlements
+    info:
+      path: Apps/iOS/Info.plist
+      properties:
+        CFBundleDisplayName: ConnDock
+        CFBundleName: ConnDock
+        CFBundleShortVersionString: '$(MARKETING_VERSION)'
+        CFBundleVersion: '$(CURRENT_PROJECT_VERSION)'
+        ITSAppUsesNonExemptEncryption: false
+        CFBundleDevelopmentRegion: zh-Hans
+        CFBundleLocalizations: [zh-Hans, en]
+        ConnDockBuildConfiguration: '$(CONFIGURATION)'
+        NSLocalNetworkUsageDescription: NSLocalNetworkUsageDescription
+        ConnDockCloudKitEnabled: '$(CONNDOCK_CLOUDKIT_ENABLED)'
+        ConnDockCloudKitContainer: iCloud.com.ruohai.conndock
+        ConnDockCloudKitTeam: 86HC8YA388
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+  ConnDockTests-macOS:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [Tests]
+    dependencies:
+      - target: ConnDock-macOS
+      - package: ConnDockKit
+      - package: SSHCoreBridge
+      - package: SwiftTerm
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ruohai.conndock.macOS.tests
+        TEST_HOST: '$(BUILT_PRODUCTS_DIR)/ConnDock.app/Contents/MacOS/ConnDock'
+        BUNDLE_LOADER: '$(TEST_HOST)'
+      configs:
+        Local:
+          PRODUCT_BUNDLE_IDENTIFIER: local.SSHClient.macOS.tests
+  ConnDockTests-iOS:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    dependencies:
+      - target: ConnDock-iOS
+      - package: ConnDockKit
+      - package: SSHCoreBridge
+      - package: SwiftTerm
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ruohai.conndock.iOS.tests
+        TEST_HOST: '$(BUILT_PRODUCTS_DIR)/ConnDock.app/ConnDock'
+        BUNDLE_LOADER: '$(TEST_HOST)'
+      configs:
+        Local:
+          PRODUCT_BUNDLE_IDENTIFIER: local.SSHClient.iOS.tests
+  ConnDockUITests-macOS:
+    type: bundle.ui-testing
+    platform: macOS
+    sources: [UITests]
+    dependencies:
+      - target: ConnDock-macOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ruohai.conndock.macOS.uitests
+      configs:
+        Local:
+          PRODUCT_BUNDLE_IDENTIFIER: local.SSHClient.macOS.uitests
+  ConnDockUITests-iOS:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    dependencies:
+      - target: ConnDock-iOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ruohai.conndock.iOS.uitests
+      configs:
+        Local:
+          PRODUCT_BUNDLE_IDENTIFIER: local.SSHClient.iOS.uitests
+schemes:
+  ConnDock-macOS:
+    build:
+      targets:
+        ConnDock-macOS: all
+    test:
+      targets: [ConnDockTests-macOS, ConnDockUITests-macOS]
+      gatherCoverageData: true
+      captureScreenshotsAutomatically: false
+      preferredScreenCaptureFormat: screenshots
+  ConnDock-iOS:
+    build:
+      targets:
+        ConnDock-iOS: all
+    test:
+      targets: [ConnDockTests-iOS, ConnDockUITests-iOS]
+      gatherCoverageData: true
+      captureScreenshotsAutomatically: false
+      preferredScreenCaptureFormat: screenshots
