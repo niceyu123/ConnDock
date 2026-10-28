@@ -360,6 +360,16 @@ public struct WorkspaceRoot: View {
         }
       }
       CommandMenu(preferences.text("layout.title")) {
+        Button(preferences.text("terminal.split.horizontal")) {
+          workspace.splitSelected(axis: .horizontal)
+        }.keyboardShortcut("d")
+        Button(preferences.text("terminal.split.vertical")) {
+          workspace.splitSelected(axis: .vertical)
+        }.keyboardShortcut("d", modifiers: [.command, .shift])
+        Menu(preferences.text("terminal.split.title")) {
+          TerminalSplitMenu().environment(preferences).environment(workspace)
+        }
+        Divider()
         Toggle(preferences.text("layout.sidebar"), isOn: $preferences.sidebarVisible)
           .keyboardShortcut("b")
         Toggle(preferences.text("layout.inspector"), isOn: $preferences.inspectorVisible)

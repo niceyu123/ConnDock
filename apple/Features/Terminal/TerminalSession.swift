@@ -45,6 +45,7 @@ final class TerminalSession {
   var onHostKey: ((HostKeyChallenge) -> Void)?
   var onEnded: ((UUID) -> Void)?
   var onConnected: (() -> Void)?
+  var onFocus: (() -> Void)?
   private(set) var testSucceeded = false
   private(set) var files: RemoteFilesModel?
   private(set) var monitor: ServerMonitorModel?

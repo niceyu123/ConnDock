@@ -7395,6 +7395,618 @@
           }
         }
       }
+    },
+    "terminal.split.existing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Split with Existing Tab"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与已有标签分屏"
+          }
+        }
+      },
+      "extractionState" : "manual"
+    },
+    "terminal.split.horizontal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Split Left and Right"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "左右分屏"
+          }
+        }
+      },
+      "extractionState" : "manual"
+    },
+    "terminal.split.join" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unsplit Terminals"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消分屏"
+          }
+        }
+      },
+      "extractionState" : "manual"
+    },
+    "terminal.split.resize" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resize Terminal Panes"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调整终端分屏大小"
+          }
+        }
+      },
+      "extractionState" : "manual"
+    },
+    "terminal.split.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Split Terminals"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "终端分屏"
+          }
+        }
+      },
+      "extractionState" : "manual"
+    },
+    "terminal.split.vertical" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Split Top and Bottom"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上下分屏"
+          }
+        }
+      },
+      "extractionState" : "manual"
+    },
+    "sshConfig.import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import SSH Config"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入 SSH Config"
+          }
+        }
+      }
+    },
+    "sshConfig.explanation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview and select connections to add. Imports explicit Host aliases, addresses, ports, and usernames from this file. Existing hosts are skipped and no connection is started."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "预览并勾选要添加的连接。仅导入当前文件中的明确 Host 别名、地址、端口和用户名；不覆盖已有主机，不自动连接。"
+          }
+        }
+      }
+    },
+    "sshConfig.credentialsDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Credentials are not imported. IdentityFile is only a hint to use key authentication; private keys are never read and their paths are not saved. Edit each imported host to choose its credentials separately."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "凭据不会导入。IdentityFile 仅作为密钥认证提示；不会读取私钥或保存其路径。导入后请编辑主机，单独选择凭据。"
+          }
+        }
+      }
+    },
+    "sshConfig.defaultUsername" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Username for entries without User"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未声明 User 时使用的用户名"
+          }
+        }
+      }
+    },
+    "sshConfig.defaultUsernameDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applies only to entries without a User directive. Existing User values, including invalid ones, are not replaced."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅为未声明 User 的条目补充用户名，不替换文件中的有效或无效 User 值。"
+          }
+        }
+      }
+    },
+    "sshConfig.parsing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parsing configuration…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在解析配置…"
+          }
+        }
+      }
+    },
+    "sshConfig.documentBlocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuration cannot be safely imported"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置文件无法安全导入"
+          }
+        }
+      }
+    },
+    "sshConfig.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No explicit Host aliases to preview. Wildcard Host blocks provide defaults and do not create hosts."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有可预览的明确 Host 别名。通配 Host 只提供默认值，不会创建主机。"
+          }
+        }
+      }
+    },
+    "sshConfig.selectAll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select All Importable Entries"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全选可导入项"
+          }
+        }
+      }
+    },
+    "sshConfig.selectNone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deselect All"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消全选"
+          }
+        }
+      }
+    },
+    "sshConfig.preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection Preview"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接预览"
+          }
+        }
+      }
+    },
+    "sshConfig.saveSelected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Selected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入所选"
+          }
+        }
+      }
+    },
+    "sshConfig.duplicate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A host with the same name or connection identity already exists and will be skipped."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已有相同名称或连接身份的主机，将跳过。"
+          }
+        }
+      }
+    },
+    "sshConfig.identityFile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose private key credentials separately"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要单独选择私钥凭据"
+          }
+        }
+      }
+    },
+    "sshConfig.result" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Results"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入结果"
+          }
+        }
+      }
+    },
+    "sshConfig.imported" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已保存"
+          }
+        }
+      }
+    },
+    "sshConfig.skipped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skipped"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已跳过"
+          }
+        }
+      }
+    },
+    "sshConfig.remaining" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Saved"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未保存"
+          }
+        }
+      }
+    },
+    "sshConfig.line" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line %lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %lld 行"
+          }
+        }
+      }
+    },
+    "sshConfig.error.read" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not read the selected configuration. Choose an accessible regular UTF-8 text file."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法读取所选配置文件。请选择可访问的普通 UTF-8 文本文件。"
+          }
+        }
+      }
+    },
+    "sshConfig.error.limit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuration exceeds the import limits: 256 KiB, 8192 lines, 8192 bytes per line, and 256 hosts. This file was not imported."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置超出导入限制：最多 256 KiB、8192 行、每行 8192 字节、256 个主机。未导入此文件。"
+          }
+        }
+      }
+    },
+    "sshConfig.error.encoding" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuration must be UTF-8 text without control characters."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置必须为 UTF-8 文本，且不能包含控制字符。"
+          }
+        }
+      }
+    },
+    "sshConfig.error.cancelled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import stopped. Saved hosts are retained; the remaining entries were not saved."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入已停止。已保存的主机仍然保留，其余条目未保存。"
+          }
+        }
+      }
+    },
+    "sshConfig.issue.syntax" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid syntax prevents reliable scope detection. Import of this file is blocked."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置存在无效语法，无法可靠确定作用范围；已阻止此文件导入。"
+          }
+        }
+      }
+    },
+    "sshConfig.issue.context" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Include and Match can change the scope of later options and are not supported. Import of this file is blocked. No other files are read and no conditional commands are executed."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不支持 Include 或 Match，它们可能改变后续配置的作用范围；已阻止此文件导入。不会读取其他文件或执行条件命令。"
+          }
+        }
+      }
+    },
+    "sshConfig.issue.unsupported" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This connection uses an unsupported option and cannot be imported. Prepare a configuration containing only Host, HostName, User, Port, and optional IdentityFile directives."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此连接使用未支持的选项，已阻止导入。请准备仅含 Host、HostName、User、Port 和可选 IdentityFile 的配置。"
+          }
+        }
+      }
+    },
+    "sshConfig.issue.hostname" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hostname is invalid or requires unsupported token expansion. Import is blocked."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机地址无效或需要尚未支持的变量展开，已阻止导入。"
+          }
+        }
+      }
+    },
+    "sshConfig.issue.username" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The username is missing, invalid, or requires token expansion. Enter a default username or correct the User directive in the file."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用户名缺失、无效或需要变量展开。请补充默认用户名，或修正文件中的 User。"
+          }
+        }
+      }
+    },
+    "sshConfig.issue.port" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Port must be a decimal integer from 1 to 65535. Import is blocked."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "端口必须为 1–65535 的十进制整数，已阻止导入。"
+          }
+        }
+      }
+    },
+    "sshConfig.issue.identityFile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IdentityFile has an empty value. Import is blocked. Private key paths are never read or saved."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IdentityFile 的值为空，已阻止导入。不会读取或保存私钥路径。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

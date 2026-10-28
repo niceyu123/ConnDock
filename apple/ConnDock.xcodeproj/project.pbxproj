@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0EAF7F7D03A1EAB167196200 /* TerminalSplitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72857A3714A0CE6752D64D5 /* TerminalSplitTests.swift */; };
 		19323DAFADFFD9384B445734 /* ConnDockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 919F2C963C53305A374B57FF /* ConnDockKit */; };
 		19F022A9CAAC59818377CE10 /* CloudSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F1BCC75BEC520B18E1EFEC /* CloudSyncServiceTests.swift */; };
 		22D27748CDD44718E954E09D /* SSHTrustTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350BF1FC04976646DAC53E7E /* SSHTrustTests.swift */; };
@@ -18,7 +19,9 @@
 		431A017058DDBC2963C4B830 /* RemoteServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97D685CEEDFC1B58739B443 /* RemoteServicesTests.swift */; };
 		51132D8EBC867C12CA3BEDAC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DD2E746650E57F4E4D81AE2 /* InfoPlist.strings */; };
 		5E7E22E92DDC4FEC95CA966F /* MCPIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90861AF370F990696F29CC46 /* MCPIntegrationTests.swift */; };
+		6284ECDF7BDFD4FFBD233822 /* SSHConfigParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762D9B057D80D8D04EAD8D6D /* SSHConfigParserTests.swift */; };
 		68066C89F0D0051773FEAB9F /* FoundationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90DEEFF4E7A6AE51CA8E66F /* FoundationTests.swift */; };
+		6AFEC96CA5F3432FDB23C0E1 /* TerminalSplitUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 953032C6DE80389C4812228D /* TerminalSplitUITests.swift */; };
 		6B34CA2DFA7A644A9B9D6EFE /* PhaseZeroUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64013AD6E0D2524E2B3222AB /* PhaseZeroUITests.swift */; };
 		6C84A9934F635BAB30BBA01A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 860FCCE97067B75B0A82C8D6 /* Assets.xcassets */; };
 		742FA7182475B8DB093C3867 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51D5635334F93A9E30F80685 /* Assets.xcassets */; };
@@ -31,6 +34,7 @@
 		8ACB3783E4A71CD4FEEAD5AC /* ConnDockApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0349E5DAEFAD7CDD4ABD481B /* ConnDockApp.swift */; };
 		8C3A514AE3DCE044B3354381 /* FoundationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90DEEFF4E7A6AE51CA8E66F /* FoundationTests.swift */; };
 		8F66AA7D3623508AD16BDCE7 /* MCPServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72997373EE00496F1106E6C /* MCPServiceTests.swift */; };
+		8F85F90200EC528BE41CC76F /* SSHConfigImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5CACCAA71D71A5E24C21F8E /* SSHConfigImportTests.swift */; };
 		93901F650221DEF36EAD413E /* ConnDockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8D0EB5008603B64149769FDE /* ConnDockKit */; };
 		9A10A29BCFDB4390B8317D48 /* HostPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78059F211FE64868AA37F14 /* HostPersistenceTests.swift */; };
 		A00A9CC8C5C282D7D9532BBA /* PhaseZeroUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64013AD6E0D2524E2B3222AB /* PhaseZeroUITests.swift */; };
@@ -49,10 +53,14 @@
 		D78F87096228F2B9B835DFFD /* ConnDockKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CDA58786E9B80DEF87CA05 /* ConnDockKit */; };
 		D918B4DC5E183837DCE620D8 /* SSHTrustTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350BF1FC04976646DAC53E7E /* SSHTrustTests.swift */; };
 		DA9FF5D34FE1FAB7C68F63BB /* TerminalLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E519BF2E277DA236869FE6 /* TerminalLifecycleTests.swift */; };
+		DDCD1E9B69C0DC8F13D0B888 /* TerminalSplitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72857A3714A0CE6752D64D5 /* TerminalSplitTests.swift */; };
+		E0F77A9DAFBDB62979D16F47 /* TerminalSplitUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 953032C6DE80389C4812228D /* TerminalSplitUITests.swift */; };
+		E268A58F2C34B88A7D6C331B /* SSHConfigParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762D9B057D80D8D04EAD8D6D /* SSHConfigParserTests.swift */; };
 		EB2D93DC2F714B57BC154D5F /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 7E29B0BD19E50653F546CA95 /* SwiftTerm */; };
 		EBD2E70F3364507A7553B401 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 66DDF62C2A817B11B18A3C7F /* SwiftTerm */; };
 		F0A659DBF49B3CC948079598 /* ConnDockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 507D71B84EDB6067F057E282 /* ConnDockKit */; };
 		F1DF858F0387AF614C382F58 /* SessionStabilityIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81FF39D406E60171E31D926 /* SessionStabilityIntegrationTests.swift */; };
+		F269A3E404D990517BA41054 /* SSHConfigImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5CACCAA71D71A5E24C21F8E /* SSHConfigImportTests.swift */; };
 		F27FCD76580025D6CCE2E516 /* MCPPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E9FB0AE0C3D2C73FF6436F /* MCPPolicyTests.swift */; };
 		F381FEC78F945D243FFC2A7E /* MCPServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72997373EE00496F1106E6C /* MCPServiceTests.swift */; };
 /* End PBXBuildFile section */
@@ -104,13 +112,16 @@
 		64013AD6E0D2524E2B3222AB /* PhaseZeroUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhaseZeroUITests.swift; sourceTree = "<group>"; };
 		7546C153ED76E629771382D9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		756A952014635D4022A66FE4 /* ConnDockTests-iOS.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "ConnDockTests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		762D9B057D80D8D04EAD8D6D /* SSHConfigParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHConfigParserTests.swift; sourceTree = "<group>"; };
 		80498FE27FD6EF988AA60411 /* SSHCoreBridge */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SSHCoreBridge; path = Packages/SSHCoreBridge; sourceTree = SOURCE_ROOT; };
 		82F7CD89864A2D1F9C063132 /* ConnDock-Local.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ConnDock-Local.entitlements"; sourceTree = "<group>"; };
 		860FCCE97067B75B0A82C8D6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		90861AF370F990696F29CC46 /* MCPIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPIntegrationTests.swift; sourceTree = "<group>"; };
 		9138E0F35E639FC466A3A3EF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		953032C6DE80389C4812228D /* TerminalSplitUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSplitUITests.swift; sourceTree = "<group>"; };
 		9AB02BC4EF754DE296B95843 /* UIKitThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitThemeTests.swift; sourceTree = "<group>"; };
 		9FD31FCF5916696356E05436 /* apple */ = {isa = PBXFileReference; lastKnownFileType = folder; name = apple; path = .; sourceTree = SOURCE_ROOT; };
+		A5CACCAA71D71A5E24C21F8E /* SSHConfigImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHConfigImportTests.swift; sourceTree = "<group>"; };
 		A81FF39D406E60171E31D926 /* SessionStabilityIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStabilityIntegrationTests.swift; sourceTree = "<group>"; };
 		A864CA7E3ADD8E2F98FF9550 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A8B1087D0BAC4B71EE060E02 /* ConnDock.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ConnDock.entitlements; sourceTree = "<group>"; };
@@ -125,6 +136,7 @@
 		CD16ED985801FB5280407672 /* WorkspaceLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceLifecycleTests.swift; sourceTree = "<group>"; };
 		D1F1BCC75BEC520B18E1EFEC /* CloudSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncServiceTests.swift; sourceTree = "<group>"; };
 		D5C036EC1A23E54823D281AC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E72857A3714A0CE6752D64D5 /* TerminalSplitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSplitTests.swift; sourceTree = "<group>"; };
 		FEE9BEF3F84D87CED3BE62B7 /* SSHIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHIntegrationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -234,6 +246,7 @@
 			isa = PBXGroup;
 			children = (
 				64013AD6E0D2524E2B3222AB /* PhaseZeroUITests.swift */,
+				953032C6DE80389C4812228D /* TerminalSplitUITests.swift */,
 			);
 			path = UITests;
 			sourceTree = "<group>";
@@ -260,9 +273,12 @@
 				C72997373EE00496F1106E6C /* MCPServiceTests.swift */,
 				B97D685CEEDFC1B58739B443 /* RemoteServicesTests.swift */,
 				A81FF39D406E60171E31D926 /* SessionStabilityIntegrationTests.swift */,
+				A5CACCAA71D71A5E24C21F8E /* SSHConfigImportTests.swift */,
+				762D9B057D80D8D04EAD8D6D /* SSHConfigParserTests.swift */,
 				FEE9BEF3F84D87CED3BE62B7 /* SSHIntegrationTests.swift */,
 				350BF1FC04976646DAC53E7E /* SSHTrustTests.swift */,
 				58E519BF2E277DA236869FE6 /* TerminalLifecycleTests.swift */,
+				E72857A3714A0CE6752D64D5 /* TerminalSplitTests.swift */,
 				9AB02BC4EF754DE296B95843 /* UIKitThemeTests.swift */,
 				CD16ED985801FB5280407672 /* WorkspaceLifecycleTests.swift */,
 			);
@@ -535,10 +551,13 @@
 				F27FCD76580025D6CCE2E516 /* MCPPolicyTests.swift in Sources */,
 				F381FEC78F945D243FFC2A7E /* MCPServiceTests.swift in Sources */,
 				894DE602B6EAA65DB26D32B2 /* RemoteServicesTests.swift in Sources */,
+				8F85F90200EC528BE41CC76F /* SSHConfigImportTests.swift in Sources */,
+				E268A58F2C34B88A7D6C331B /* SSHConfigParserTests.swift in Sources */,
 				AD7A5457088C7669FA8EB86A /* SSHIntegrationTests.swift in Sources */,
 				22D27748CDD44718E954E09D /* SSHTrustTests.swift in Sources */,
 				F1DF858F0387AF614C382F58 /* SessionStabilityIntegrationTests.swift in Sources */,
 				CD513A394B8380757607A282 /* TerminalLifecycleTests.swift in Sources */,
+				DDCD1E9B69C0DC8F13D0B888 /* TerminalSplitTests.swift in Sources */,
 				41708ED4CEA5B6118E1EDDDE /* UIKitThemeTests.swift in Sources */,
 				8922EB97F0D47F97101397BA /* WorkspaceLifecycleTests.swift in Sources */,
 			);
@@ -565,6 +584,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6B34CA2DFA7A644A9B9D6EFE /* PhaseZeroUITests.swift in Sources */,
+				E0F77A9DAFBDB62979D16F47 /* TerminalSplitUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -573,6 +593,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A00A9CC8C5C282D7D9532BBA /* PhaseZeroUITests.swift in Sources */,
+				6AFEC96CA5F3432FDB23C0E1 /* TerminalSplitUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -589,10 +610,13 @@
 				CFD25B8506592E3A482B8959 /* MCPPolicyTests.swift in Sources */,
 				8F66AA7D3623508AD16BDCE7 /* MCPServiceTests.swift in Sources */,
 				431A017058DDBC2963C4B830 /* RemoteServicesTests.swift in Sources */,
+				F269A3E404D990517BA41054 /* SSHConfigImportTests.swift in Sources */,
+				6284ECDF7BDFD4FFBD233822 /* SSHConfigParserTests.swift in Sources */,
 				871EF1C28412B8150AA01260 /* SSHIntegrationTests.swift in Sources */,
 				D918B4DC5E183837DCE620D8 /* SSHTrustTests.swift in Sources */,
 				2C1D1FDAA54EB7B36C5E7B05 /* SessionStabilityIntegrationTests.swift in Sources */,
 				DA9FF5D34FE1FAB7C68F63BB /* TerminalLifecycleTests.swift in Sources */,
+				0EAF7F7D03A1EAB167196200 /* TerminalSplitTests.swift in Sources */,
 				D1E2B95F389C29B29457C859 /* UIKitThemeTests.swift in Sources */,
 				A47E0F88A398B6F7AACF6770 /* WorkspaceLifecycleTests.swift in Sources */,
 			);

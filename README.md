@@ -141,7 +141,9 @@ Phase 4 的实现、正式配置与本机验证已完成；macOS 已按最新要
 
 Phase 5 使用方法和边界见 [MCP 配置](docs/PHASE5-MCP-SETUP.md)，执行计划见 [Phase 5 计划](docs/PHASE5-PLAN.md)，最终结果见 [Phase 5 验证](docs/PHASE5-VALIDATION.md)。隔离真实链路运行 `scripts/test-mcp.sh`；加 `--codex` 验证本机 Codex CLI，使用临时参数，不改全局客户端配置。MCP 默认为关闭；请求仅访问用户明确授权的 UUID，凭据留在主 App 的 Keychain 中。该阶段后已按用户指令进入 Phase 6。
 
-Phase 6 的后台恢复、输入取消、多标签与发布准备见 [计划](docs/PHASE6-PLAN.md)、[验证记录](docs/PHASE6-VALIDATION.md)、[人工验收矩阵](docs/PHASE6-ACCEPTANCE.md)、[隐私说明](docs/PHASE6-PRIVACY.md) 和 [本地归档/TestFlight 准备](docs/PHASE6-RELEASE.md)。当前停止于 Phase 6；真实云端、正式 helper 沙盒、设备权限和分发验收按记录继续保留待办，不自动上传或扩展后续功能。
+Phase 6 的后台恢复、输入取消、多标签与发布准备见 [计划](docs/PHASE6-PLAN.md)、[验证记录](docs/PHASE6-VALIDATION.md)、[人工验收矩阵](docs/PHASE6-ACCEPTANCE.md)、[隐私说明](docs/PHASE6-PRIVACY.md) 和 [本地归档/TestFlight 准备](docs/PHASE6-RELEASE.md)。真实云端、正式 helper 沙盒、设备权限和分发验收按记录继续保留待办。
+
+2026-10-28 用户授权剩余 P1/P2 分阶段实施，其他平台客户端暂缓。Phase 7 已接入终端分屏与 SSH Config 导入，详见 [验证记录](docs/PHASE7-VALIDATION.md) 与 [后续阶段](docs/REMAINING-STAGES.md)。macOS 使用布局菜单、⌘D/⇧⌘D 或标签右键分屏；iPad 使用终端工具栏的分屏菜单。两窗格输入独立，SFTP/监控/命令跟随所选窗格。主机列表的导入按钮可选择 SSH Config 文件，先预览再保存；不支持的连接选项会阻止对应配置导入，凭据需另行输入。
 
 ## 2026-10-28 内部命名统一
 

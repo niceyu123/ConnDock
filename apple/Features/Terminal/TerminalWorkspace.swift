@@ -1,21 +1,162 @@
 import SwiftUI
 
 struct TerminalWorkspace: View {
+  @Environment(WorkspaceState.self) private var workspace
+  @Environment(\.horizontalSizeClass) private var sizeClass
+  var showTabs = true
+  var compact = false
+  @State private var splitRatio = 0.5
+  @State private var dragStart: Double?
+
+  private struct FocusContext: Equatable {
+    let selection: UUID
+    let split: TerminalSplit?
+    let supportsSplit: Bool
+  }
+
+  private var supportsSplit: Bool {
+    #if os(macOS)
+      true
+    #else
+      sizeClass == .regular
+    #endif
+  }
+
+  var body: some View {
+    VStack(spacing: 0) {
+      if showTabs { TerminalTabBar() }
+      if supportsSplit, let split = workspace.selectedSplit {
+        #if os(macOS)
+          if split.axis == .horizontal {
+            HSplitView { panes }
+          } else {
+            VSplitView { panes }
+          }
+        #else
+          GeometryReader { geometry in
+            let horizontal = split.axis == .horizontal
+            let length = horizontal ? geometry.size.width : geometry.size.height
+            let layout =
+              horizontal ? AnyLayout(HStackLayout(spacing: 0)) : AnyLayout(VStackLayout(spacing: 0))
+            layout {
+              if let first = workspace.visibleTerminalTabs.first {
+                TerminalPane(tab: first, compact: compact, showsPaneHeader: true)
+                  .frame(
+                    width: horizontal ? max(0, length - 12) * splitRatio : nil,
+                    height: horizontal ? nil : max(0, length - 12) * splitRatio)
+              }
+              mobileDivider(horizontal: horizontal, length: length)
+              if let last = workspace.visibleTerminalTabs.last {
+                TerminalPane(tab: last, compact: compact, showsPaneHeader: true)
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+              }
+            }
+          }
+        #endif
+      } else if let tab = workspace.selectedTab {
+        TerminalPane(tab: tab, compact: compact)
+      }
+    }
+    .task(
+      id: FocusContext(
+        selection: workspace.selection, split: workspace.selectedSplit, supportsSplit: supportsSplit
+      )
+    ) {
+      let selected = workspace.selection
+      await Task.yield()
+      guard !Task.isCancelled, workspace.selection == selected,
+        !workspace.showNewHost, !workspace.showGroupEditor, workspace.trustPrompt == nil
+      else { return }
+      workspace.activateTerminal(selected)
+    }
+  }
+
+  @ViewBuilder private var panes: some View {
+    ForEach(workspace.visibleTerminalTabs) { tab in
+      TerminalPane(tab: tab, compact: compact, showsPaneHeader: true)
+        .frame(minWidth: 160, maxWidth: .infinity, minHeight: 100, maxHeight: .infinity)
+        .id(tab.id)
+    }
+  }
+
+  #if os(iOS)
+    private func mobileDivider(horizontal: Bool, length: CGFloat) -> some View {
+      Rectangle().fill(Color.secondary.opacity(0.2))
+        .frame(width: horizontal ? 12 : nil, height: horizontal ? nil : 12)
+        .overlay {
+          Capsule().fill(.secondary)
+            .frame(width: horizontal ? 3 : 32, height: horizontal ? 32 : 3)
+        }
+        .contentShape(Rectangle())
+        .gesture(
+          DragGesture().onChanged { value in
+            if dragStart == nil { dragStart = splitRatio }
+            let distance = horizontal ? value.translation.width : value.translation.height
+            splitRatio = min(0.8, max(0.2, (dragStart ?? 0.5) + distance / max(1, length - 12)))
+          }.onEnded { _ in dragStart = nil }
+        )
+        .accessibilityLabel(Text("terminal.split.resize", bundle: .module))
+        .accessibilityAdjustableAction { direction in
+          splitRatio = min(0.8, max(0.2, splitRatio + (direction == .increment ? 0.1 : -0.1)))
+        }
+    }
+  #endif
+}
+
+struct TerminalSplitMenu: View {
+  @Environment(AppPreferences.self) private var preferences
+  @Environment(WorkspaceState.self) private var workspace
+
+  var body: some View {
+    ForEach(TerminalSplitAxis.allCases, id: \.rawValue) { axis in
+      Button {
+        workspace.splitSelected(axis: axis)
+      } label: {
+        SymbolLabel(key: axis.key, symbol: axis.symbol)
+      }
+    }
+    if workspace.tabs.count > 1 {
+      Menu(preferences.text("terminal.split.existing")) {
+        ForEach(workspace.tabs.filter { $0.id != workspace.selection }) { tab in
+          Button {
+            workspace.splitSelected(
+              with: tab.id, axis: workspace.selectedSplit?.axis ?? .horizontal)
+          } label: {
+            if tab.isLocal {
+              Copy("terminal.localShell")
+            } else if let title = tab.title {
+              Text(verbatim: title)
+            } else if tab.isWelcome {
+              Copy("terminal.disconnected")
+            } else {
+              Text(verbatim: "\(preferences.text("terminal.tab")) \(tab.ordinal)")
+            }
+          }
+        }
+      }
+    }
+    Button(preferences.text("terminal.split.join")) { workspace.joinSelectedSplit() }
+      .disabled(workspace.selectedSplit == nil)
+  }
+}
+
+private struct TerminalPane: View {
   @Environment(AppPreferences.self) private var preferences
   @Environment(WorkspaceState.self) private var workspace
   @Environment(\.colorScheme) private var scheme
-  var showTabs = true
+  let tab: WorkspaceTab
   var compact = false
+  var showsPaneHeader = false
 
   var body: some View {
     let palette = WorkspacePalette(scheme: scheme)
     let terminalScheme = preferences.terminalTheme.resolvedScheme(appScheme: scheme)
     let terminalPalette = WorkspacePalette(scheme: terminalScheme)
-    let session = workspace.selectedSession
-    let isLocalTab = workspace.selectedTab?.isLocal == true
+    let session = workspace.session(for: tab.id)
+    let isLocalTab = tab.isLocal
 
     VStack(spacing: 0) {
-      if showTabs { TerminalTabBar() }
+      if showsPaneHeader { paneHeader }
 
       if let session, session.isActive {
         HStack(spacing: 8) {
@@ -28,6 +169,7 @@ struct TerminalWorkspace: View {
             .lineLimit(1).truncationMode(.middle)
           Spacer()
           IconButton(key: "action.disconnect", symbol: "stop.fill") {
+            workspace.selection = tab.id
             workspace.disconnectSelected()
           }
           .accessibilityIdentifier("terminalDisconnect")
@@ -54,7 +196,7 @@ struct TerminalWorkspace: View {
         ZStack {
           if isLocalTab {
             #if os(macOS)
-              if let shell = workspace.selectedLocalShell {
+              if let shell = workspace.localShell(for: tab.id) {
                 LocalShellCanvas(
                   session: shell, scheme: terminalScheme,
                   fontSize: CGFloat(preferences.terminalFontSize))
@@ -65,7 +207,7 @@ struct TerminalWorkspace: View {
               scheme: terminalScheme, accessibilityText: preferences.text("terminal.nativeCanvas"),
               session: session, fontSize: CGFloat(preferences.terminalFontSize)
             )
-            .id(session?.id.uuidString ?? "empty.\(workspace.selection.uuidString)")
+            .id(session?.id.uuidString ?? "empty.\(tab.id.uuidString)")
             .accessibilityIdentifier("sshTerminal")
           } else {
             ScrollView {
@@ -91,6 +233,7 @@ struct TerminalWorkspace: View {
                 }
                 HStack(spacing: 12) {
                   Button {
+                    workspace.selection = tab.id
                     workspace.showNewHost = true
                   } label: {
                     HStack(spacing: 5) {
@@ -134,7 +277,10 @@ struct TerminalWorkspace: View {
             VStack(spacing: 12) {
               ProgressView()
               Copy(session?.statusKey ?? "ssh.state.connecting")
-              Button(preferences.text("action.cancel")) { workspace.disconnectSelected() }
+              Button(preferences.text("action.cancel")) {
+                workspace.selection = tab.id
+                workspace.disconnectSelected()
+              }
             }.padding(24).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
           }
         }
@@ -145,12 +291,50 @@ struct TerminalWorkspace: View {
     }
     .background(palette.terminal)
   }
+
+  private var paneHeader: some View {
+    HStack(spacing: 8) {
+      Button {
+        workspace.activateTerminal(tab.id)
+      } label: {
+        HStack(spacing: 5) {
+          Image(systemName: workspace.selection == tab.id ? "circle.inset.filled" : "circle")
+          if tab.isLocal {
+            Copy("terminal.localShell")
+          } else if let title = tab.title {
+            Text(verbatim: title)
+          } else if tab.isWelcome {
+            Copy("terminal.disconnected")
+          } else {
+            Copy("terminal.tab")
+            Text(tab.ordinal, format: .number)
+          }
+        }
+        .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier("terminalPaneFocus.\(tab.id.uuidString)")
+      .accessibilityAddTraits(workspace.selection == tab.id ? .isSelected : [])
+      IconButton(key: "terminal.split.join", symbol: "rectangle") {
+        workspace.selection = tab.id
+        workspace.joinSelectedSplit()
+      }.buttonStyle(.plain).accessibilityIdentifier("terminalUnsplit")
+      IconButton(key: "action.closeTab", symbol: "xmark") { workspace.closeTab(tab.id) }
+        .buttonStyle(.plain)
+    }
+    .font(.caption).padding(.horizontal, 10).padding(.vertical, 8)
+    .foregroundStyle(workspace.selection == tab.id ? Color.accentColor : Color.secondary)
+    .background(WorkspacePalette(scheme: scheme).panel)
+    .overlay(alignment: .bottom) { Divider() }
+  }
 }
 
 struct TerminalTabBar: View {
   @Environment(AppPreferences.self) private var preferences
   @Environment(WorkspaceState.self) private var workspace
   @Environment(\.colorScheme) private var scheme
+  @Environment(\.horizontalSizeClass) private var sizeClass
   var toolbarCompact = false
 
   var body: some View {
@@ -164,7 +348,7 @@ struct TerminalTabBar: View {
               let session = workspace.session(for: tab.id)
               HStack(spacing: 6) {
                 Button {
-                  workspace.selection = tab.id
+                  workspace.activateTerminal(tab.id)
                 } label: {
                   HStack(spacing: 6) {
                     if tab.isLocal {
@@ -225,6 +409,13 @@ struct TerminalTabBar: View {
                 }
               }
               .foregroundStyle(isSelected ? palette.accent : .secondary)
+              .contextMenu {
+                #if os(macOS)
+                  tabSplitActions(tab)
+                #else
+                  if sizeClass == .regular { tabSplitActions(tab) }
+                #endif
+              }
               .id(tab.id)
             }
 
@@ -252,5 +443,20 @@ struct TerminalTabBar: View {
       .font(.caption)
       .foregroundStyle(.secondary)
       .accessibilityIdentifier("newTerminalTab")
+  }
+
+  @ViewBuilder private func tabSplitActions(_ tab: WorkspaceTab) -> some View {
+    ForEach(TerminalSplitAxis.allCases, id: \.rawValue) { axis in
+      Button {
+        workspace.selection = tab.id
+        workspace.splitSelected(axis: axis)
+      } label: {
+        SymbolLabel(key: axis.key, symbol: axis.symbol)
+      }
+    }
+    Button(preferences.text("terminal.split.join")) {
+      workspace.selection = tab.id
+      workspace.joinSelectedSplit()
+    }
   }
 }

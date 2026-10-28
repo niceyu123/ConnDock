@@ -9,7 +9,8 @@ final class TerminalSurface: NSObject, @preconcurrency TerminalViewDelegate {
 
   init(session: TerminalSession) {
     self.session = session
-    view = TerminalView(frame: .zero, font: .monospacedSystemFont(ofSize: 13, weight: .regular))
+    view = FocusedTerminalView(
+      frame: .zero, font: .monospacedSystemFont(ofSize: 13, weight: .regular))
     super.init()
     view.changeScrollback(5000)
     #if os(iOS)
@@ -18,6 +19,7 @@ final class TerminalSurface: NSObject, @preconcurrency TerminalViewDelegate {
       view.inputAccessoryView = nil
     #endif
     view.terminalDelegate = self
+    (view as? FocusedTerminalView)?.onFocus = { [weak session] in session?.onFocus?() }
     #if os(macOS)
       // SwiftTerm's AppKit view is not an AX element by default. Expose the
       // input surface without publishing remote terminal contents as AX values.
@@ -30,7 +32,9 @@ final class TerminalSurface: NSObject, @preconcurrency TerminalViewDelegate {
   func sizeChanged(source: TerminalView, newCols: Int, newRows: Int) {
     session?.resize(columns: newCols, rows: newRows)
   }
-  func send(source: TerminalView, data: ArraySlice<UInt8>) { session?.send(Array(data)) }
+  func send(source: TerminalView, data: ArraySlice<UInt8>) {
+    session?.send(Array(data))
+  }
   func setTerminalTitle(source: TerminalView, title: String) {}
   func hostCurrentDirectoryUpdate(source: TerminalView, directory: String?) {}
   func scrolled(source: TerminalView, position: Double) {}

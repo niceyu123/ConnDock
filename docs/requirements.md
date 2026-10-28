@@ -209,6 +209,14 @@ UI 必须包含空数据、加载、连接失败、断网、无权限、同步�
 
 Docker 管理、批量运维、可扩展监控、其他平台客户端、MCP 高危写操作自动化。不在 MVP 期间提前开发。
 
+### 2026-10-28 后续阶段授权
+
+用户已明确授权剩余 P1 与 P2 均纳入，继续按阶段完成；随后明确其他平台客户端“暂时不需要”，该项暂缓。授权不等于所有功能已经实现或真实验收完成。阶段安排见 `REMAINING-STAGES.md`。
+
+Phase 7 先实现终端分屏和 SSH Config 导入：macOS/iPad 常规宽度支持两窗格左右/上下排列、调整大小、独立焦点、组合已有标签、取消分屏和关闭窗格；iPhone 紧凑宽度显示当前单标签。复用已有原生终端与独立会话，不自动重连或广播输入。分屏组为当前工作区临时状态，不同步或跨启动恢复会话。
+
+SSH Config 由用户选择文件后预览并勾选导入，支持明确别名、HostName/User/Port 和匹配的 Host 默认值，遵守首值优先。未支持的代理、条件和包含指令必须明确提示并阻止受影响条目静默直连；不执行本机命令、不自动读取 IdentityFile 或导入秘密、不覆盖已有主机、不自动连接。
+
 ## 6. 核心数据模型建议
 
 **Host**：`id(UUID)`、`displayName`、`hostname`、`port(Int)`、`username`、`authMethod`、`credentialRef`、`groupId`、`notes`、`favorite`、`sortIndex`、`createdAt`、`updatedAt`、`deletedAt?`、`syncRevision`。

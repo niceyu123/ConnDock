@@ -88,6 +88,14 @@
     @ToolbarContentBuilder
     private var terminalTools: some ToolbarContent {
       ToolbarItemGroup(placement: .topBarTrailing) {
+        if sizeClass == .regular {
+          Menu {
+            TerminalSplitMenu()
+          } label: {
+            SymbolLabel(key: "terminal.split.title", symbol: "rectangle.split.2x1")
+          }
+          .accessibilityIdentifier("terminalSplitMenu")
+        }
         Button {
           workspace.presentedTool = .files
         } label: {
@@ -222,6 +230,7 @@
           BrandIcon(size: 28)
         }
         ToolbarItem(placement: .topBarTrailing) {
+          SSHConfigImportButton(iconOnly: true)
           Button {
             workspace.showNewHost = true
           } label: {

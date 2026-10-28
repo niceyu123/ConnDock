@@ -2,6 +2,10 @@ import Foundation
 import Observation
 import SSHCoreBridge
 
+#if os(macOS)
+  import AppKit
+#endif
+
 public struct WorkspaceTab: Identifiable, Equatable {
   public let id: UUID
   public let ordinal: Int
@@ -27,6 +31,7 @@ public final class WorkspaceState {
   let commandLibrary = CommandLibrary()
   public private(set) var tabs: [WorkspaceTab]
   public var selection: UUID
+  private(set) var terminalSplits: [TerminalSplit] = []
   public var showNewHost = false
   public var searchFocused = false
   public var search = ""
@@ -148,6 +153,55 @@ public final class WorkspaceState {
     selection = tab.id
   }
 
+  var selectedSplit: TerminalSplit? { terminalSplits.first { $0.contains(selection) } }
+
+  var visibleTerminalTabs: [WorkspaceTab] {
+    let ids = selectedSplit.map { [$0.first, $0.second] } ?? [selection]
+    return ids.compactMap { id in tabs.first { $0.id == id } }
+  }
+
+  func splitSelected(axis: TerminalSplitAxis) {
+    if let index = terminalSplits.firstIndex(where: { $0.contains(selection) }) {
+      terminalSplits[index].axis = axis
+      return
+    }
+    let first = selection
+    guard tabs.contains(where: { $0.id == first }) else { return }
+    addTerminal()
+    terminalSplits.append(TerminalSplit(first: first, second: selection, axis: axis))
+  }
+
+  func splitSelected(with tabID: UUID, axis: TerminalSplitAxis) {
+    guard tabID != selection, tabs.contains(where: { $0.id == tabID }),
+      tabs.contains(where: { $0.id == selection })
+    else { return }
+    terminalSplits.removeAll { $0.contains(selection) || $0.contains(tabID) }
+    terminalSplits.append(TerminalSplit(first: selection, second: tabID, axis: axis))
+  }
+
+  func joinSelectedSplit() { terminalSplits.removeAll { $0.contains(selection) } }
+
+  func focusTerminal(_ id: UUID) {
+    // Native focus notifications can arrive after a tab was detached or closed.
+    guard visibleTerminalTabs.contains(where: { $0.id == id }) else { return }
+    selection = id
+  }
+
+  func activateTerminal(_ id: UUID) {
+    guard tabs.contains(where: { $0.id == id }) else { return }
+    selection = id
+    #if os(macOS)
+      let view: NSView? = localShells[id]?.view ?? sessions[id]?.surface.view
+      if let view, let window = view.window {
+        window.makeFirstResponder(view)
+      } else if sessions[id] == nil && localShells[id] == nil {
+        NSApp.keyWindow?.makeFirstResponder(nil)
+      }
+    #else
+      _ = sessions[id]?.surface.view.becomeFirstResponder()
+    #endif
+  }
+
   public var selectedTab: WorkspaceTab? {
     tabs.first(where: { $0.id == selection })
   }
@@ -161,6 +215,7 @@ public final class WorkspaceState {
       let tab = WorkspaceTab(id: UUID(), ordinal: nextOrdinal, isLocal: true)
       nextOrdinal += 1
       localShells[tab.id] = LocalShellSession()
+      localShells[tab.id]?.onFocus = { [weak self] in self?.focusTerminal(tab.id) }
       tabs.append(tab)
       selection = tab.id
     #endif
@@ -168,6 +223,9 @@ public final class WorkspaceState {
 
   public func closeTab(_ id: UUID) {
     guard let index = tabs.firstIndex(where: { $0.id == id }) else { return }
+    let companion = terminalSplits.first(where: { $0.contains(id) })?.companion(of: id)
+    terminalSplits.removeAll { $0.contains(id) }
+    if let sessionID = sessions[id]?.id { removeTrustPrompt(for: sessionID) }
     sessions.removeValue(forKey: id)?.close()
     #if os(macOS)
       localShells.removeValue(forKey: id)?.close()
@@ -178,11 +236,14 @@ public final class WorkspaceState {
       tabs = [welcome]
       selection = welcome.id
     } else if selection == id {
-      selection = tabs[min(index, tabs.count - 1)].id
+      selection = companion ?? tabs[min(index, tabs.count - 1)].id
     }
   }
 
   var selectedSession: TerminalSession? { sessions[selection] }
+  #if os(macOS)
+    func localShell(for tabID: UUID) -> LocalShellSession? { localShells[tabID] }
+  #endif
 
   func connect(
     target: ConnectionTarget, authentication: AuthenticationRequest,
@@ -201,6 +262,7 @@ public final class WorkspaceState {
     let session = TerminalSession(
       id: UUID(), target: target, sourceHostID: sourceHostID, isConnectionTest: testOnly)
     sessions[id] = session
+    session.onFocus = { [weak self] in self?.focusTerminal(id) }
     session.onHostKey = { [weak self] challenge in self?.enqueueTrust(challenge) }
     session.onEnded = { [weak self] id in self?.removeTrustPrompt(for: id) }
     if let sourceHostID, !testOnly {

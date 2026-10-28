@@ -7,7 +7,10 @@
   // Keep the native view and PTY alive when the user switches tabs.
   @MainActor @Observable
   final class LocalShellSession: NSObject, @preconcurrency LocalProcessTerminalViewDelegate {
-    let view = LocalProcessTerminalView(frame: .zero)
+    let view = FocusedLocalTerminalView(frame: .zero)
+    var onFocus: (() -> Void)? {
+      didSet { view.onFocus = onFocus }
+    }
     private(set) var ended = false
 
     override init() {
@@ -58,6 +61,7 @@
         .font(.caption).foregroundStyle(.secondary).padding(8)
         Divider()
         LocalShellView(session: session, scheme: scheme, fontSize: fontSize)
+          .accessibilityIdentifier("localTerminal")
       }
     }
   }

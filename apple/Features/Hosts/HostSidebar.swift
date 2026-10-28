@@ -184,6 +184,9 @@ struct HostSidebar: View {
         .buttonStyle(.bordered)
         .accessibilityIdentifier("sidebarNewHost")
 
+        SSHConfigImportButton(iconOnly: true)
+          .buttonStyle(.bordered)
+
         #if os(macOS)
           SettingsLink {
             Image(systemName: "gearshape")
