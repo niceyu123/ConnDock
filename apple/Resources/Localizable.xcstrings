@@ -8007,6 +8007,448 @@
           }
         }
       }
+    },
+    "host.keyboardInteractive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keyboard-Interactive / MFA"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "交互认证 / MFA"
+          }
+        }
+      }
+    },
+    "host.agent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SSH Agent (Mac Only)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SSH Agent（仅 Mac）"
+          }
+        }
+      }
+    },
+    "host.agentSocket" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local Agent Socket Absolute Path"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本机 Agent Socket 绝对路径"
+          }
+        }
+      }
+    },
+    "host.agentFingerprint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allowed Public Key Fingerprint (SHA256)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许签名的公钥指纹（SHA256）"
+          }
+        }
+      }
+    },
+    "host.agentNotice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connects only to the local agent you specify and signs with this public key only. No agent forwarding or private key access. Get the fingerprint from ssh-add -l. App Sandbox may restrict socket access."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅连接你明确指定的本机 Agent，并只使用此公钥签名。不会转发 Agent 或读取私钥。请从 ssh-add -l 取得指纹；App 沙盒可能限制 Socket 访问。"
+          }
+        }
+      }
+    },
+    "host.filesOnly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Files and Services (No Terminal)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件与服务模式（不启动终端）"
+          }
+        }
+      }
+    },
+    "host.filesOnlyDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This connection does not request a PTY or start a shell. SFTP, monitoring, and service operations remain available."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此连接不申请 PTY 或启动 Shell，可使用 SFTP、监控和服务操作。"
+          }
+        }
+      }
+    },
+    "host.allowInteractive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Additional MFA Challenges"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许认证后继续验证 MFA"
+          }
+        }
+      }
+    },
+    "host.jump" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jump Host"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳板机"
+          }
+        }
+      }
+    },
+    "host.direct" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direct Connection"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直接连接"
+          }
+        }
+      }
+    },
+    "host.jumpNotice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supports one saved, directly reachable jump host. Both hosts authenticate and verify fingerprints separately. Failure never falls back to a direct connection."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "首版支持一台已保存的直连跳板机。两端分别认证与验证指纹，跳板机不可用时不会降级直连。"
+          }
+        }
+      }
+    },
+    "host.advanced" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection and Authentication Options"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接方式与认证选项"
+          }
+        }
+      }
+    },
+    "ssh.interactive.notice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The following prompts come from this SSH server. Verify the target before responding. Answers are used for this authentication only and are never saved or synced."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以下提示来自当前 SSH 服务器。确认目标后回答，答案仅用于本次认证，不保存或同步。"
+          }
+        }
+      }
+    },
+    "ssh.interactive.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SSH Interactive Authentication"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SSH 交互认证"
+          }
+        }
+      }
+    },
+    "ssh.interactive.respond" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submit Responses"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提交回答"
+          }
+        }
+      }
+    },
+    "ssh.error.jumpFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The jump connection is unavailable. Check its configuration, authentication, and host fingerprint."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳板连接不可用。请检查配置、认证与主机指纹。"
+          }
+        }
+      }
+    },
+    "ssh.error.jumpCredential" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The jump host has no local credentials. Edit it and save credentials before retrying the target connection."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳板机缺少本机凭据。请先编辑跳板机并保存凭据，再重试目标连接。"
+          }
+        }
+      }
+    },
+    "mcp.error.INTERACTIVE_AUTH_REQUIRED" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This host requires interactive authentication. MCP does not open authentication prompts. Use a separate non-interactive connection configuration."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该主机需要交互认证，MCP 不会打开认证弹窗。请使用独立的非交互认证配置。"
+          }
+        }
+      }
+    },
+    "mcp.error.JUMP_UNAVAILABLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The jump host is missing or its authentication method cannot be used by MCP."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳板机缺失或认证方式不可用于 MCP。"
+          }
+        }
+      }
+    },
+    "mcp.error.JUMP_NOT_AUTHORIZED" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The jump host is not authorized or its configuration changed. Authorize both the target and jump host."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳板机尚未获授权，或配置已更改。请同时授权目标与跳板机。"
+          }
+        }
+      }
+    },
+    "host.agentAuthorize" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorize Agent Socket Folder"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "授权 Agent Socket 所在目录"
+          }
+        }
+      }
+    },
+    "host.agentAuthorized" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder selected. Access authorization is saved on this device only."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已选择目录，仅在本机保存访问授权。"
+          }
+        }
+      }
+    },
+    "ssh.error.agentUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot connect to or read the selected SSH agent. Check its socket and status."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法连接或读取所选 SSH Agent。请检查 Socket 和 Agent 状态。"
+          }
+        }
+      }
+    },
+    "ssh.error.agentAccessDenied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The system denied access to the agent socket. Select an accessible folder or use local key authentication."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统拒绝访问 Agent Socket。请选择可访问的目录或使用本机密钥认证。"
+          }
+        }
+      }
+    },
+    "host.agentDedicated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use a Dedicated Agent in the App Container"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用应用容器内的专用 Agent"
+          }
+        }
+      }
+    },
+    "host.agentSetupNotice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run these commands manually in a system terminal to start the agent and load keys, then run ssh-add -l with the same SSH_AUTH_SOCK and enter its public key fingerprint. App Sandbox may block the system login agent socket; a dedicated agent in the app container is recommended. The app does not execute these setup commands."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在系统终端手动运行以上命令并加载密钥，再使用相同 SSH_AUTH_SOCK 运行 ssh-add -l，填写其显示的公钥指纹。系统登录 Agent 的 Socket 可能被 App Sandbox 阻止；建议使用容器内专用 Agent。应用不会执行这些设置命令。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

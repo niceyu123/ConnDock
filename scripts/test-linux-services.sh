@@ -5,13 +5,16 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
 MODE="${1:-}"
-case "$MODE" in ''|--quick|--apple|--apple-only|--stability|--terminal) ;; *) echo 'Usage: test-linux-services.sh [--quick|--apple|--apple-only|--stability|--terminal]' >&2; exit 2 ;; esac
+case "$MODE" in ''|--quick|--apple|--apple-only|--stability|--terminal|--connections) ;; *) echo 'Usage: test-linux-services.sh [--quick|--apple|--apple-only|--stability|--terminal|--connections]' >&2; exit 2 ;; esac
 docker info > /dev/null
 mkdir -p build
+if [[ "$MODE" == --connections ]]; then mkdir -p build/phase8; fi
 TEST_DIR="$(mktemp -d "$ROOT/build/linux-ssh-test.XXXXXX")"
 chmod 700 "$TEST_DIR"
 CONTAINER_ID=''
+CONNDOCK_AGENT_PID=''
 cleanup() {
+    if [[ -n "$CONNDOCK_AGENT_PID" ]]; then kill "$CONNDOCK_AGENT_PID" >/dev/null 2>&1 || true; fi
     if [[ -n "$CONTAINER_ID" ]]; then docker rm -f -v "$CONTAINER_ID" > /dev/null 2>&1 || true; fi
     rm -f "$TEST_DIR/client" "$TEST_DIR/unauthorized" "$TEST_DIR/server/host"
 }
@@ -57,9 +60,13 @@ ForceCommand /run/conndock/dispatch.sh
 PrintMotd no
 LogLevel ERROR
 EOF
+if [[ "$MODE" == --connections ]]; then
+    printf '\nPermitTTY no\nAllowTcpForwarding yes\n' >> "$TEST_DIR/server/sshd_config"
+fi
 cat > "$TEST_DIR/server/start.sh" <<'EOF'
 #!/bin/sh
 set -eu
+if ! id conndock >/dev/null 2>&1; then useradd -m -s /bin/bash conndock; passwd -d conndock >/dev/null; fi
 mkdir -p /run/sshd /run/conndock /home/conndock/.ssh
 cp /fixture/host /run/conndock/host
 chmod 600 /run/conndock/host
@@ -75,12 +82,16 @@ printf 'Isolated real Linux OpenSSH workspace.\n' > "$CONNDOCK_WORK_DIRECTORY/RE
 ln -s "$CONNDOCK_WORK_DIRECTORY" /home/conndock/ConnDock-Test
 exec /usr/sbin/sshd -D -e -f /fixture/sshd_config
 EOF
-IMAGE='conndock-phase3-openssh:debian12'
+IMAGE="${CONNDOCK_SSH_FIXTURE_IMAGE:-conndock-phase3-openssh:debian12}"
 # Fixed official base; package installation belongs only to this test image.
+if [[ -z "${CONNDOCK_SSH_FIXTURE_IMAGE:-}" ]]; then
 docker build -t "$IMAGE" - > build/phase3-linux-fixture-build.log 2>&1 <<'EOF'
 FROM debian:bookworm-slim@sha256:7ff6ba31527b9e336162fa061746c366c4b2032f4d2cff2078bea43f78efe3f8
 RUN apt-get update && apt-get install -y --no-install-recommends openssh-server bash procps ca-certificates && rm -rf /var/lib/apt/lists/* && useradd -m -s /bin/bash conndock && passwd -d conndock
 EOF
+else
+    docker image inspect "$IMAGE" >/dev/null
+fi
 CONTAINER_ID="$(docker run -d --rm -p 127.0.0.1::22 --label conndock.fixture=phase3 \
     --mount "type=bind,source=$TEST_DIR/server,target=/fixture,readonly" \
     --mount "type=bind,source=$TEST_DIR/work,target=$TEST_DIR/work" \
@@ -95,6 +106,16 @@ export CONNDOCK_TEST_PHASE="${CONNDOCK_TEST_PHASE:-phase3}"
 export CONNDOCK_TEST_DENIED_PATH="$TEST_DIR/work/permission-denied"
 export CONNDOCK_TEST_BASELINE_FILE="$TEST_DIR/baseline.txt"
 export CONNDOCK_TEST_CONTAINER_ID="$CONTAINER_ID"
+if [[ "$MODE" == --connections ]]; then
+    # This dedicated agent contains only a freshly generated disposable key.
+    # Do not modify or inspect the user's existing agent.
+    ssh-agent -D -a "$TEST_DIR/agent.sock" > "$TEST_DIR/agent.log" 2>&1 &
+    CONNDOCK_AGENT_PID=$!
+    export SSH_AUTH_SOCK="$TEST_DIR/agent.sock"
+    for attempt in {1..100}; do [[ -S "$SSH_AUTH_SOCK" ]] && break; sleep .05; done
+    ssh-add "$TEST_DIR/client" > "$TEST_DIR/agent-add.log" 2>&1
+    export CONNDOCK_TEST_AGENT_FINGERPRINT="$(ssh-keygen -lf "$TEST_DIR/client.pub" -E sha256 | awk '{print $2}')"
+fi
 python3 - <<'PY'
 import os,socket,time
 for attempt in range(100):
@@ -111,6 +132,7 @@ if [[ "$MODE" != --apple-only ]]; then
     TEST_TARGET=remote_services
     BUILD_JSON="$ROOT/build/phase3-remote-test-build.jsonl"
     if [[ "$MODE" == --terminal ]]; then TEST_TARGET=openssh; BUILD_JSON="$ROOT/build/phase6-terminal-test-build.jsonl"; fi
+    if [[ "$MODE" == --connections ]]; then TEST_TARGET=connections; BUILD_JSON="$ROOT/build/phase8/connections-build.jsonl"; fi
     cargo test --locked -p conndock-core --test "$TEST_TARGET" --no-run --message-format=json > "$BUILD_JSON"
     TEST_BINARY="$(python3 - "$BUILD_JSON" "$TEST_TARGET" <<'PY'
 import json,sys
@@ -125,6 +147,10 @@ PY
     if [[ "$MODE" == --terminal ]]; then ARGS+=(--skip openssh_password_pty_and_wrong_password); fi
     /usr/bin/time -l "$TEST_BINARY" "${ARGS[@]}"
     cd "$ROOT"
+fi
+if [[ "$MODE" == --connections && "${CONNDOCK_CONNECTIONS_APPLE:-}" == 1 ]]; then
+    export CONNDOCK_TEST_PHASE=phase8 CONNDOCK_TEST_METHOD=testAdvancedTransportThroughBridge
+    "$ROOT/scripts/test-apple-ssh.sh"
 fi
 if [[ "$MODE" == --apple || "$MODE" == --apple-only ]]; then
     export CONNDOCK_TEST_METHOD="${CONNDOCK_TEST_METHOD:-testSFTPAndLinuxMonitorThroughBridge}"

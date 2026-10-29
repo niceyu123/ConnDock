@@ -54,11 +54,11 @@ struct CommandsPanel: View {
             Spacer()
             IconButton(key: "commands.edit", symbol: "pencil") { editing = command }
             IconButton(key: "commands.run", symbol: "play.fill") {
-              guard let session = workspace.selectedSession, session.isConnected else { return }
+              guard let session = workspace.selectedSession, session.canSendInput else { return }
               execution = CommandExecution(
                 command: command, sessionID: session.id, target: session.target)
             }
-            .disabled(workspace.selectedSession?.isConnected != true)
+            .disabled(workspace.selectedSession?.canSendInput != true)
             IconButton(key: "action.delete", symbol: "trash") {
               Task { await library.remove(command) }
             }
@@ -121,7 +121,7 @@ private struct CommandExecutionSheet: View {
 
   private var session: TerminalSession? {
     guard let session = workspace.selectedSession,
-      session.id == request.sessionID, session.target == request.target, session.isConnected
+      session.id == request.sessionID, session.target == request.target, session.canSendInput
     else { return nil }
     return session
   }

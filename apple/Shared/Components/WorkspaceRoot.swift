@@ -27,7 +27,8 @@ public struct WorkspaceRoot: View {
       NewHostSheet(
         host: workspace.editingHostID.flatMap { workspace.library?.host($0) },
         target: workspace.reconnectTarget, requireCredential: workspace.requireCredentialInput,
-        testOnly: workspace.editorTestOnly, persistenceAvailable: workspace.library != nil)
+        testOnly: workspace.editorTestOnly, persistenceAvailable: workspace.library != nil,
+        connectionOptions: workspace.reconnectOptions)
     }
     .sheet(
       isPresented: $workspace.showGroupEditor,
@@ -47,6 +48,16 @@ public struct WorkspaceRoot: View {
         },
         set: { _ in })
     ) { challenge in HostKeySheet(challenge: challenge) }
+    .sheet(
+      item: Binding(
+        get: {
+          !workspace.showNewHost && !workspace.showGroupEditor && hostEditorDismissed
+            && groupEditorDismissed
+            && workspace.trustPrompt == nil ? workspace.authenticationPrompt : nil
+        }, set: { _ in })
+    ) { challenge in
+      InteractiveAuthenticationSheet(challenge: challenge).id(challenge.id)
+    }
     .onChange(of: workspace.showNewHost) { _, value in if value { hostEditorDismissed = false } }
     .onChange(of: workspace.showGroupEditor) { _, value in if value { groupEditorDismissed = false }
     }

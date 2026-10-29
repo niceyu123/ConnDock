@@ -31,6 +31,7 @@ import SwiftTerm
 
   final class FocusedTerminalView: TerminalView {
     var onFocus: (() -> Void)?
+    var onWindowAttachment: (() -> Void)?
     private lazy var focusObserver: TerminalFocusObserver = {
       let observer = TerminalFocusObserver(view: self)
       observer.onFocus = { [weak self] in self?.onFocus?() }
@@ -40,6 +41,7 @@ import SwiftTerm
     override func viewDidMoveToWindow() {
       super.viewDidMoveToWindow()
       _ = focusObserver
+      if window != nil { onWindowAttachment?() }
     }
 
     override func mouseDown(with event: NSEvent) {
@@ -50,6 +52,7 @@ import SwiftTerm
 
   final class FocusedLocalTerminalView: LocalProcessTerminalView {
     var onFocus: (() -> Void)?
+    var onWindowAttachment: (() -> Void)?
     private lazy var focusObserver: TerminalFocusObserver = {
       let observer = TerminalFocusObserver(view: self)
       observer.onFocus = { [weak self] in self?.onFocus?() }
@@ -59,6 +62,7 @@ import SwiftTerm
     override func viewDidMoveToWindow() {
       super.viewDidMoveToWindow()
       _ = focusObserver
+      if window != nil { onWindowAttachment?() }
     }
 
     override func mouseDown(with event: NSEvent) {

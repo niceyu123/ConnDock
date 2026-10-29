@@ -6,7 +6,7 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
 };
 use std::time::Duration;
-use tokio::sync::{Semaphore, mpsc, watch};
+use tokio::sync::{Semaphore, mpsc, oneshot, watch};
 use zeroize::Zeroizing;
 
 const OUTPUT_CAPACITY: usize = 64;
@@ -29,6 +29,8 @@ pub enum ErrorCode {
     HostKeyChanged,
     UnsupportedHostKey,
     AuthenticationFailed,
+    AgentUnavailable,
+    AgentAccessDenied,
     InvalidPrivateKey,
     UnsupportedPrivateKey,
     PtyFailed,
@@ -76,11 +78,29 @@ pub enum SessionEvent {
         fingerprint: String,
     },
     Output(Vec<u8>),
+    AuthenticationChallenge {
+        id: u64,
+        name: String,
+        instructions: String,
+        prompts: Vec<AuthenticationPrompt>,
+    },
     Ended {
         reason: EndReason,
         error: Option<ErrorCode>,
         exit_status: Option<u32>,
     },
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AuthenticationPrompt {
+    pub prompt: String,
+    pub echo: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SessionMode {
+    Terminal,
+    Transport,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -106,6 +126,8 @@ pub struct ConnectionOptions {
     pub size: TerminalSize,
     pub timeout: Duration,
     pub trust_timeout: Duration,
+    pub mode: SessionMode,
+    pub allow_interactive: bool,
 }
 impl ConnectionOptions {
     pub fn new(host: String, port: u16, username: String) -> Self {
@@ -120,6 +142,8 @@ impl ConnectionOptions {
             },
             timeout: Duration::from_secs(20),
             trust_timeout: Duration::from_secs(120),
+            mode: SessionMode::Terminal,
+            allow_interactive: false,
         }
     }
     pub fn validate(&self) -> Result<(), ErrorCode> {
@@ -187,6 +211,11 @@ pub enum Authentication {
         private_key: Zeroizing<String>,
         passphrase: Option<Zeroizing<String>>,
     },
+    KeyboardInteractive,
+    Agent {
+        socket_path: String,
+        fingerprint: String,
+    },
 }
 
 struct InputGate(watch::Sender<(u64, bool)>);
@@ -239,6 +268,13 @@ struct Control {
     client: Mutex<Option<Weak<client::Handle<Handler>>>>,
     auxiliary_slots: Arc<Semaphore>,
     input_gate: Arc<InputGate>,
+    terminal: bool,
+    auth_reply: Mutex<Option<PendingAuthentication>>,
+}
+struct PendingAuthentication {
+    id: u64,
+    count: usize,
+    reply: oneshot::Sender<Zeroizing<Vec<String>>>,
 }
 impl Control {
     fn close_socket(&self) {
@@ -249,6 +285,7 @@ impl Control {
     fn cancel(&self) {
         self.cancelled.send_replace(true);
         self.close_socket();
+        lock(&self.auth_reply).take();
     }
 }
 
@@ -283,7 +320,36 @@ pub(crate) fn runtime() -> Result<&'static tokio::runtime::Runtime, ErrorCode> {
 
 impl SshSession {
     pub fn start(options: ConnectionOptions, auth: Authentication) -> Result<Self, ErrorCode> {
+        Self::start_routed(options, auth, None)
+    }
+    pub fn start_via(
+        options: ConnectionOptions,
+        auth: Authentication,
+        jump: Arc<SshSession>,
+    ) -> Result<Self, ErrorCode> {
+        jump.remote_context().map_err(|_| ErrorCode::NotConnected)?;
+        Self::start_routed(options, auth, Some(jump))
+    }
+    fn start_routed(
+        options: ConnectionOptions,
+        auth: Authentication,
+        jump: Option<Arc<SshSession>>,
+    ) -> Result<Self, ErrorCode> {
         options.validate()?;
+        if let Authentication::Agent {
+            socket_path,
+            fingerprint,
+        } = &auth
+        {
+            if !cfg!(target_os = "macos")
+                || !socket_path.starts_with('/')
+                || socket_path.len() > 1024
+                || socket_path.contains('\0')
+            {
+                return Err(ErrorCode::InvalidConfiguration);
+            }
+            HostKeyPolicy::validate_fingerprint(fingerprint)?;
+        }
         let runtime = runtime()?;
         let (events_tx, events_rx) = mpsc::channel(OUTPUT_CAPACITY);
         let (input_tx, input_rx) = mpsc::channel(INPUT_CAPACITY);
@@ -303,6 +369,8 @@ impl SshSession {
             client: Mutex::new(None),
             auxiliary_slots: Arc::new(Semaphore::new(8)),
             input_gate: Arc::new(InputGate::default()),
+            terminal: options.mode == SessionMode::Terminal,
+            auth_reply: Mutex::new(None),
         });
         runtime.spawn(worker(
             options,
@@ -312,6 +380,7 @@ impl SshSession {
             input_rx,
             size_rx,
             cancel_rx,
+            jump,
         ));
         Ok(Self {
             control,
@@ -353,7 +422,7 @@ impl SshSession {
         Ok(())
     }
     pub fn send_input(&self, bytes: Vec<u8>) -> Result<(), ErrorCode> {
-        if !self.control.connected.load(Ordering::Acquire) {
+        if !self.control.terminal || !self.control.connected.load(Ordering::Acquire) {
             return Err(ErrorCode::NotConnected);
         }
         if bytes.is_empty() {
@@ -373,6 +442,24 @@ impl SshSession {
                 mpsc::error::TrySendError::Full(_) => ErrorCode::InputBackpressure,
                 mpsc::error::TrySendError::Closed(_) => ErrorCode::NotConnected,
             })
+    }
+    pub fn respond_authentication(&self, id: u64, responses: Vec<String>) -> Result<(), ErrorCode> {
+        let responses = Zeroizing::new(responses);
+        let mut pending = lock(&self.control.auth_reply);
+        let current = pending.as_ref().ok_or(ErrorCode::AuthenticationFailed)?;
+        if current.id != id
+            || current.count != responses.len()
+            || responses.iter().any(|r| r.len() > 8192)
+            || self.is_finished()
+        {
+            return Err(ErrorCode::AuthenticationFailed);
+        }
+        pending
+            .take()
+            .unwrap()
+            .reply
+            .send(responses)
+            .map_err(|_| ErrorCode::AuthenticationFailed)
     }
     pub fn set_input_suspended(&self, suspended: bool) {
         self.control.input_gate.set_suspended(suspended);
@@ -475,6 +562,7 @@ async fn timed<T>(
         .map_err(|_| ErrorCode::Timeout)?
 }
 
+#[allow(clippy::too_many_arguments)] // Every receiver is independently owned by this session worker.
 async fn worker(
     options: ConnectionOptions,
     auth: Authentication,
@@ -483,17 +571,27 @@ async fn worker(
     input: mpsc::Receiver<InputPacket>,
     size: watch::Receiver<TerminalSize>,
     mut cancelled: watch::Receiver<bool>,
+    jump: Option<Arc<SshSession>>,
 ) {
     let result = tokio::select! {
         biased;
         _ = cancelled.wait_for(|v| *v) => Ok((EndReason::User, None)),
-        result = run(options, auth, control.clone(), events.clone(), input, size) => result,
+        result = run(options, auth, control.clone(), events.clone(), input, size, jump) => result,
+    };
+    // The run branch can observe the socket shutdown in the same poll that
+    // cancel() sets this flag, after select already polled its cancel branch.
+    // Preserve cancellation precedence before publishing the final outcome.
+    let result = if *cancelled.borrow() {
+        Ok((EndReason::User, None))
+    } else {
+        result
     };
     control.connected.store(false, Ordering::Release);
     control.cancelled.send_replace(true);
     lock(&control.client).take();
     control.close_socket();
     lock(&control.pending_fingerprint).take();
+    lock(&control.auth_reply).take();
     let event = match result {
         Ok((reason, exit_status)) => SessionEvent::Ended {
             reason,
@@ -519,22 +617,46 @@ async fn run(
     events: mpsc::Sender<SessionEvent>,
     input: mpsc::Receiver<InputPacket>,
     mut size: watch::Receiver<TerminalSize>,
+    jump: Option<Arc<SshSession>>,
 ) -> Result<(EndReason, Option<u32>), ErrorCode> {
     events
         .send(SessionEvent::State(ConnectionState::Connecting))
         .await
         .map_err(|_| ErrorCode::Internal)?;
-    let tcp = timed(options.timeout, async {
-        tokio::net::TcpStream::connect((options.host.as_str(), options.port))
-            .await
-            .map_err(|_| ErrorCode::ConnectionFailed)
-    })
-    .await?;
-    tcp.set_nodelay(true)
-        .map_err(|_| ErrorCode::ConnectionFailed)?;
-    let socket = tcp.into_std().map_err(|_| ErrorCode::ConnectionFailed)?;
-    *lock(&control.socket) = Some(socket.try_clone().map_err(|_| ErrorCode::Internal)?);
-    let tcp = tokio::net::TcpStream::from_std(socket).map_err(|_| ErrorCode::Internal)?;
+    let stream: Box<dyn SshStream> = if let Some(parent) = &jump {
+        let context = parent
+            .remote_context()
+            .map_err(|_| ErrorCode::NotConnected)?;
+        Box::new(
+            timed(options.timeout, async {
+                context
+                    .handle
+                    .channel_open_direct_tcpip(
+                        options.host.clone(),
+                        options.port.into(),
+                        "127.0.0.1",
+                        0,
+                    )
+                    .await
+                    .map(|channel| channel.into_stream())
+                    .map_err(|_| ErrorCode::ConnectionFailed)
+            })
+            .await?,
+        )
+    } else {
+        let tcp = timed(options.timeout, async {
+            tokio::net::TcpStream::connect((options.host.as_str(), options.port))
+                .await
+                .map_err(|_| ErrorCode::ConnectionFailed)
+        })
+        .await?;
+        tcp.set_nodelay(true)
+            .map_err(|_| ErrorCode::ConnectionFailed)?;
+        let socket = tcp.into_std().map_err(|_| ErrorCode::ConnectionFailed)?;
+        *lock(&control.socket) = Some(socket.try_clone().map_err(|_| ErrorCode::Internal)?);
+        let tcp = tokio::net::TcpStream::from_std(socket).map_err(|_| ErrorCode::Internal)?;
+        Box::new(tcp)
+    };
     let config = client::Config {
         keepalive_interval: Some(Duration::from_secs(15)),
         keepalive_max: 3,
@@ -547,14 +669,14 @@ async fn run(
     let handler = Handler {
         control: control.clone(),
         events: events.clone(),
-        trusted: options.trusted_fingerprint,
+        trusted: options.trusted_fingerprint.clone(),
         timeout: options.trust_timeout,
     };
     // Pause only the network handshake budget while a real user trust decision
     // is pending. A silent peer never receives the longer human decision window.
     let mut handle = connect_ssh(
         Arc::new(config),
-        tcp,
+        stream,
         handler,
         options.timeout,
         control.trust_waiting.subscribe(),
@@ -564,13 +686,12 @@ async fn run(
         .send(SessionEvent::State(ConnectionState::Authenticating))
         .await
         .map_err(|_| ErrorCode::Internal)?;
-    let authenticated = timed(options.timeout, async {
-        let result = match auth {
-            Authentication::Password(password) => {
-                handle
-                    .authenticate_password(&options.username, password.as_str())
-                    .await
-            }
+    let result = timed(options.timeout, async {
+        match auth {
+            Authentication::Password(password) => handle
+                .authenticate_password(&options.username, password.as_str())
+                .await
+                .map_err(|_| ErrorCode::ConnectionLost),
             Authentication::Ed25519 {
                 private_key,
                 passphrase,
@@ -587,15 +708,48 @@ async fn run(
                         keys::PrivateKeyWithHashAlg::new(Arc::new(key), None),
                     )
                     .await
+                    .map_err(|_| ErrorCode::ConnectionLost)
             }
-        };
-        result
-            .map(|r| r.success())
-            .map_err(|_| ErrorCode::ConnectionLost)
+            Authentication::KeyboardInteractive => Ok(client::AuthResult::Failure {
+                remaining_methods: russh::MethodSet::from(
+                    &[russh::MethodKind::KeyboardInteractive][..],
+                ),
+                partial_success: true,
+            }),
+            Authentication::Agent {
+                socket_path,
+                fingerprint,
+            } => {
+                authenticate_agent(&mut handle, &options.username, &socket_path, &fingerprint).await
+            }
+        }
     })
     .await?;
+    let authenticated = if result.success() {
+        true
+    } else if options.allow_interactive
+        && matches!(result, client::AuthResult::Failure { partial_success: true, ref remaining_methods } if remaining_methods.contains(&russh::MethodKind::KeyboardInteractive))
+    {
+        authenticate_interactive(&mut handle, &options, &control, &events).await?
+    } else {
+        false
+    };
     if !authenticated {
         return Err(ErrorCode::AuthenticationFailed);
+    }
+    if options.mode == SessionMode::Transport {
+        let handle = Arc::new(handle);
+        *lock(&control.client) = Some(Arc::downgrade(&handle));
+        control.connected.store(true, Ordering::Release);
+        events
+            .send(SessionEvent::State(ConnectionState::Connected))
+            .await
+            .map_err(|_| ErrorCode::Internal)?;
+        // Retain the authenticated handle and its owned jump until disconnected.
+        while !handle.is_closed() {
+            tokio::time::sleep(Duration::from_millis(25)).await;
+        }
+        return Err(ErrorCode::ConnectionLost);
     }
     let mut channel = timed(options.timeout, async {
         handle
@@ -708,9 +862,141 @@ async fn write_input(
     }
 }
 
+trait SshStream: tokio::io::AsyncRead + tokio::io::AsyncWrite + Unpin + Send {}
+impl<T: tokio::io::AsyncRead + tokio::io::AsyncWrite + Unpin + Send> SshStream for T {}
+
+async fn authenticate_agent(
+    handle: &mut client::Handle<Handler>,
+    username: &str,
+    socket_path: &str,
+    fingerprint: &str,
+) -> Result<client::AuthResult, ErrorCode> {
+    #[cfg(target_os = "macos")]
+    {
+        use keys::agent::{AgentIdentity, client::AgentClient};
+        let mut agent =
+            AgentClient::connect_uds(socket_path)
+                .await
+                .map_err(|error| match error {
+                    keys::Error::IO(error)
+                        if error.kind() == std::io::ErrorKind::PermissionDenied =>
+                    {
+                        ErrorCode::AgentAccessDenied
+                    }
+                    _ => ErrorCode::AgentUnavailable,
+                })?;
+        let identities = agent
+            .request_identities()
+            .await
+            .map_err(|_| ErrorCode::AgentUnavailable)?;
+        if identities.len() > 64 {
+            return Err(ErrorCode::AuthenticationFailed);
+        }
+        let selected = identities
+            .into_iter()
+            .find_map(|identity| match identity {
+                AgentIdentity::PublicKey { key, .. }
+                    if key.fingerprint(keys::HashAlg::Sha256).to_string() == fingerprint =>
+                {
+                    Some(key)
+                }
+                _ => None,
+            })
+            .ok_or(ErrorCode::AuthenticationFailed)?;
+        let hash = if matches!(selected.algorithm(), keys::Algorithm::Rsa { .. }) {
+            Some(keys::HashAlg::Sha512)
+        } else {
+            None
+        };
+        handle
+            .authenticate_publickey_with(username, selected, hash, &mut agent)
+            .await
+            .map_err(|_| ErrorCode::AuthenticationFailed)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = (handle, username, socket_path, fingerprint);
+        Err(ErrorCode::InvalidConfiguration)
+    }
+}
+
+async fn authenticate_interactive(
+    handle: &mut client::Handle<Handler>,
+    options: &ConnectionOptions,
+    control: &Control,
+    events: &mpsc::Sender<SessionEvent>,
+) -> Result<bool, ErrorCode> {
+    let mut response = timed(options.timeout, async {
+        handle
+            .authenticate_keyboard_interactive_start(&options.username, None::<String>)
+            .await
+            .map_err(|_| ErrorCode::ConnectionLost)
+    })
+    .await?;
+    for id in 1..=16 {
+        match response {
+            client::KeyboardInteractiveAuthResponse::Success => return Ok(true),
+            client::KeyboardInteractiveAuthResponse::Failure { .. } => return Ok(false),
+            client::KeyboardInteractiveAuthResponse::InfoRequest {
+                name,
+                instructions,
+                prompts,
+            } => {
+                if prompts.len() > 8
+                    || name.len() > 4096
+                    || instructions.len() > 8192
+                    || prompts.iter().any(|p| p.prompt.len() > 4096)
+                {
+                    return Err(ErrorCode::AuthenticationFailed);
+                }
+                let (tx, rx) = oneshot::channel();
+                *lock(&control.auth_reply) = Some(PendingAuthentication {
+                    id,
+                    count: prompts.len(),
+                    reply: tx,
+                });
+                events
+                    .send(SessionEvent::AuthenticationChallenge {
+                        id,
+                        name,
+                        instructions,
+                        prompts: prompts
+                            .into_iter()
+                            .map(|p| AuthenticationPrompt {
+                                prompt: p.prompt,
+                                echo: p.echo,
+                            })
+                            .collect(),
+                    })
+                    .await
+                    .map_err(|_| ErrorCode::Internal)?;
+                let answers = tokio::time::timeout(options.trust_timeout, rx)
+                    .await
+                    .map_err(|_| ErrorCode::Timeout)?
+                    .map_err(|_| ErrorCode::AuthenticationFailed)?;
+                response = timed(options.timeout, async {
+                    handle
+                        .authenticate_keyboard_interactive_respond(
+                            answers.iter().cloned().collect(),
+                        )
+                        .await
+                        .map_err(|_| ErrorCode::ConnectionLost)
+                })
+                .await?;
+            }
+        }
+    }
+    // The last permitted answer may already have produced a terminal response.
+    // Do not require a seventeenth iteration merely to observe that success.
+    Ok(matches!(
+        response,
+        client::KeyboardInteractiveAuthResponse::Success
+    ))
+}
+
 async fn connect_ssh(
     config: Arc<client::Config>,
-    tcp: tokio::net::TcpStream,
+    tcp: Box<dyn SshStream>,
     handler: Handler,
     timeout: Duration,
     mut trust_waiting: watch::Receiver<bool>,

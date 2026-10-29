@@ -137,7 +137,7 @@
               Copy(key).font(.system(.callout, design: .monospaced)).frame(
                 minWidth: 44, minHeight: 44)
             }
-            .buttonStyle(.bordered).disabled(workspace.selectedSession?.isConnected != true)
+            .buttonStyle(.bordered).disabled(workspace.selectedSession?.canSendInput != true)
           }
           ForEach(["arrow.left", "arrow.down", "arrow.up", "arrow.right"], id: \.self) { symbol in
             Button {
@@ -149,7 +149,7 @@
               Image(systemName: symbol).frame(minWidth: 44, minHeight: 44)
             }
             .accessibilityLabel(preferences.text("key.\(symbol)"))
-            .buttonStyle(.bordered).disabled(workspace.selectedSession?.isConnected != true)
+            .buttonStyle(.bordered).disabled(workspace.selectedSession?.canSendInput != true)
           }
         }
         .padding(.horizontal, 12).padding(.vertical, 8)

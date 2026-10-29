@@ -23,6 +23,54 @@ final class SSHIntegrationTests: XCTestCase {
     let expectLinux: Bool?
     let isolatedFixture: Bool?
     let runCodex: Bool?
+    let agentSocket: String?
+    let agentFingerprint: String?
+    let targetPort: UInt16?
+  }
+
+  func testAdvancedTransportThroughBridge() async throws {
+    let configuration = try takeConfiguration()
+    let key = try XCTUnwrap(configuration.privateKey)
+    let auth = AuthenticationRequest.ed25519(privateKey: key, passphrase: configuration.passphrase)
+    let request = ConnectionRequest(
+      host: configuration.host, port: configuration.port, username: configuration.username,
+      trustedFingerprint: configuration.fingerprint, columns: 80, rows: 24, timeoutSeconds: 10)
+    let parent = try connectAdvanced(
+      request: request, authentication: auth, transportOnly: true, allowInteractive: false,
+      jump: nil)
+    defer { parent.disconnect() }
+    func connected(_ connection: SshConnection, stage: String) async throws {
+      let deadline = Date().addingTimeInterval(15)
+      while Date() < deadline {
+        for event in connection.pollEvents() {
+          if case .stateChanged(let state) = event, state == .connected { return }
+          if case .ended(_, let failure, _) = event {
+            XCTFail("Advanced transport failed at \(stage): \(String(describing: failure))")
+            throw IntegrationError.invalidConfiguration
+          }
+        }
+        try await Task.sleep(for: .milliseconds(10))
+      }
+      XCTFail("Advanced transport timed out")
+      throw IntegrationError.invalidConfiguration
+    }
+    try await connected(parent, stage: "parent")
+    let files = try await parent.openFiles()
+    defer { files.close() }
+    let output = try await parent.executeCommand(
+      command: "printf apple-transport", timeoutSeconds: 5, operation: RemoteOperation())
+    XCTAssertEqual(output.stdout, Data("apple-transport".utf8))
+    let target = ConnectionRequest(
+      host: "127.0.0.1", port: configuration.targetPort ?? 22, username: configuration.username,
+      trustedFingerprint: configuration.fingerprint, columns: 80, rows: 24, timeoutSeconds: 10)
+    let child = try connectAdvanced(
+      request: target, authentication: auth, transportOnly: true, allowInteractive: false,
+      jump: parent)
+    defer { child.disconnect() }
+    try await connected(child, stage: "jump target")
+    let jumped = try await child.executeCommand(
+      command: "printf apple-jump", timeoutSeconds: 5, operation: RemoteOperation())
+    XCTAssertEqual(jumped.stdout, Data("apple-jump".utf8))
   }
 
   func takeConfiguration() throws -> Configuration {

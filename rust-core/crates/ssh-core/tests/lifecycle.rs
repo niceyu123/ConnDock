@@ -38,14 +38,18 @@ async fn cancellation_during_handshake_closes_the_socket() {
     let mut bytes = [0u8; 1024];
     assert!(stream.read(&mut bytes).await.unwrap() > 0);
     session.disconnect();
-    assert!(matches!(
-        finish(&session).await,
-        SessionEvent::Ended {
-            reason: EndReason::User,
-            error: None,
-            ..
-        }
-    ));
+    let ended = finish(&session).await;
+    assert!(
+        matches!(
+            ended,
+            SessionEvent::Ended {
+                reason: EndReason::User,
+                error: None,
+                ..
+            }
+        ),
+        "user cancellation must take precedence over the socket shutdown result: {ended:?}"
+    );
     assert!(session.is_finished());
     let closed = tokio::time::timeout(Duration::from_secs(1), stream.read(&mut bytes))
         .await

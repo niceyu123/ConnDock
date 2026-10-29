@@ -26,6 +26,34 @@
 
   @MainActor
   final class MCPServiceTests: XCTestCase {
+    func testJumpRequiresItsOwnGrantAndEditsCancelRunningTargetRequests() async throws {
+      let (service, library, host, executor) = try await fixture()
+      let jump = try await library.saveHost(
+        HostDraft(displayName: "Jump", hostname: "jump.invalid", username: "jump"))
+      var draft = HostDraft(host: host)
+      draft.connectionOptions = HostConnectionOptions(jumpHostID: jump.id)
+      _ = try await library.saveHost(draft)
+      service.setGrant(MCPHostGrant(host: host, tools: [.getServerMetrics]), for: host.id)
+      service.setEnabled(true)
+      let arguments: [String: MCPValue] = ["host_id": .string(host.id.uuidString)]
+      let denied = await service.handle(
+        tool: "get_server_metrics", arguments: arguments, source: .init(pid: 1))
+      XCTAssertEqual(denied.error?.code, "JUMP_NOT_AUTHORIZED")
+      XCTAssertTrue(executor.calls.isEmpty)
+      service.setGrant(MCPHostGrant(host: jump, tools: [.getServerMetrics]), for: jump.id)
+      executor.delay = true
+      let pending = Task {
+        await service.handle(
+          tool: "get_server_metrics", arguments: arguments, source: .init(pid: 1))
+      }
+      try await waiting { !executor.calls.isEmpty }
+      var edited = HostDraft(host: jump)
+      edited.username = "changed"
+      _ = try await library.saveHost(edited)
+      let result = await pending.value
+      XCTAssertEqual(result.error?.code, "JUMP_NOT_AUTHORIZED")
+      XCTAssertEqual(service.activeRequestCount, 0)
+    }
     private func fixture() async throws -> (MCPService, HostLibrary, StoredHost, MCPTestExecutor) {
       let defaults = try XCTUnwrap(UserDefaults(suiteName: "ConnDock.MCPTests.\(UUID())"))
       let library = try HostLibrary(memoryOnly: true, cleanupDefaults: defaults)

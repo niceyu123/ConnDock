@@ -2,8 +2,16 @@ import Foundation
 import SwiftData
 
 enum HostAuthMethod: String, CaseIterable, Codable, Sendable {
-  case password, ed25519
-  var titleKey: String { self == .password ? "host.password" : "host.key" }
+  case password, ed25519, keyboardInteractive, agent
+  var titleKey: String {
+    switch self {
+    case .password: return "host.password"
+    case .ed25519: return "host.key"
+    case .keyboardInteractive: return "host.keyboardInteractive"
+    case .agent: return "host.agent"
+    }
+  }
+  var needsCredential: Bool { self == .password || self == .ed25519 }
 }
 
 enum HostSchemaV1: VersionedSchema {
@@ -55,7 +63,7 @@ final class StoredHost {
   var target: ConnectionTarget {
     ConnectionTarget(
       displayName: displayName, host: hostname, port: UInt16(exactly: port) ?? 0,
-      username: username, usesPrivateKey: authMethod == .ed25519)
+      username: username, usesPrivateKey: authMethod == .ed25519, authenticationMethod: authMethod)
   }
 }
 
@@ -93,6 +101,7 @@ struct HostDraft {
   var notes: String = ""
   var favorite: Bool = false
   var tags: [String]? = nil
+  var connectionOptions: HostConnectionOptions? = nil
 
   init(
     displayName: String, hostname: String, port: UInt16 = 22, username: String,
@@ -121,6 +130,6 @@ struct HostDraft {
   var target: ConnectionTarget {
     ConnectionTarget(
       displayName: displayName, host: hostname, port: port,
-      username: username, usesPrivateKey: authMethod == .ed25519)
+      username: username, usesPrivateKey: authMethod == .ed25519, authenticationMethod: authMethod)
   }
 }

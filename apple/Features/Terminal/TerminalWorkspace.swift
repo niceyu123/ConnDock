@@ -202,6 +202,21 @@ private struct TerminalPane: View {
                   fontSize: CGFloat(preferences.terminalFontSize))
               }
             #endif
+          } else if session?.connectionOptions.filesOnly == true {
+            VStack(spacing: 14) {
+              EmptyPanel(
+                symbol: "folder.badge.gearshape", title: "host.filesOnly",
+                detail: "host.filesOnlyDetail", compact: true)
+              Button(preferences.text("sftp.files")) {
+                workspace.selection = tab.id
+                #if os(macOS)
+                  preferences.filesVisible = true
+                #else
+                  workspace.presentedTool = .files
+                #endif
+              }
+              .buttonStyle(.bordered).disabled(session?.isConnected != true)
+            }
           } else if session != nil {
             NativeTerminalView(
               scheme: terminalScheme, accessibilityText: preferences.text("terminal.nativeCanvas"),

@@ -2,7 +2,7 @@
 
 产品与 App 显示名称为 **ConnDock**，Xcode 工程为 `ConnDock.xcodeproj`；Target、模块和二进制开发名称仍为 ConnDock。App Store Connect 已新建独立 ConnDock 记录，旧 TermAll 的 TestFlight 构建属于旧身份，不能作为新 App 的构建。
 
-面向 macOS、iPhone、iPad 的原生 SSH 客户端。当前进入 **Phase 6：安全、稳定性与发布准备**，增加后台恢复检查、多标签和资源释放验证、隐私说明及本地归档/发行预检。Phase 4 真实云端、Phase 5 正式沙盒与最终分发验收仍需对应签名和设备环境，详情见阶段记录。
+面向 macOS、iPhone、iPad 的原生 SSH 客户端。Phase 7 已提供终端分屏和 SSH Config 导入，本次 Phase 8 增加文件与服务模式、单跳跳板机、交互式认证/MFA 和 macOS 专用 SSH Agent。阶段记录见 [Phase 8](docs/PHASE8-VALIDATION.md)，后续授权范围见 [剩余阶段](docs/REMAINING-STAGES.md)。真实双设备云端同步、正式沙盒和分发验收按对应记录独立推进。
 
 唯一有效任务书：[docs/requirements.md](docs/requirements.md)。原始 V1.2 导入文件仅保留在本地。主界面视觉参考：[docs/ui/macos-dark.png](docs/ui/macos-dark.png)。后续开发必须遵循 [AGENTS.md](AGENTS.md)，按阶段交付。
 
@@ -37,7 +37,7 @@ xcodegen generate --spec apple/project.yml
 open apple/ConnDock.xcodeproj
 ```
 
-Xcode 选择 `ConnDock-macOS` 或 `ConnDock-iOS` Scheme。Debug/Release 配置使用 Team `86HC8YA388`、新 Bundle `com.ruohai.conndock` 和独立 `iCloud.com.ruohai.conndock` Container；CloudKit 容器已关联新 App ID，两平台 Development 签名和 entitlement 已核对，发行签名与真实云端验证仍待完成。`Local` 配置保留原 `local.ConnDock.*`、ad-hoc 签名及无云端权限；测试脚本显式选择 Local，当前仅 Apple Silicon 模拟器。macOS 保留 App Sandbox、出站与用户选择文件读写；为默认关闭的 MCP Unix socket 增加 network.server，未启用时不监听，不提供 HTTP。正式 helper 与主 App 使用独立 macOS App Group；Local helper 为 ad-hoc 诊断形态，不能代替正式沙盒验收。详见 [CloudKit 配置与手动步骤](docs/PHASE4-CLOUDKIT-SETUP.md)。
+Xcode 选择 `ConnDock-macOS` 或 `ConnDock-iOS` Scheme。Debug/Release 配置使用 Team `86HC8YA388`、新 Bundle `com.ruohai.conndock` 和独立 `iCloud.com.ruohai.conndock` Container；CloudKit 容器已关联新 App ID，两平台 Development 签名和 entitlement 已核对，发行签名与真实云端验证仍待完成。`Local` 配置保留原 `local.SSHClient.macOS` / `local.SSHClient.iOS`、ad-hoc 签名及无云端权限；测试脚本显式选择 Local，当前仅 Apple Silicon 模拟器。macOS 保留 App Sandbox、出站与用户选择文件读写；为默认关闭的 MCP Unix socket 增加 network.server，未启用时不监听，不提供 HTTP。正式 helper 与主 App 使用独立 macOS App Group；Local helper 为 ad-hoc 诊断形态，不能代替正式沙盒验收。详见 [CloudKit 配置与手动步骤](docs/PHASE4-CLOUDKIT-SETUP.md)。
 
 SwiftTerm 1.19.0 包含生成自身 Git 版本信息的 build-tool plugin。已核查固定版本的插件和生成器，仅读取包内 Git 信息、写入派生 Swift 文件。Xcode 首次打开时可显示插件信任提示；本地脚本通过本次命令的 `-skipPackagePluginValidation` 运行已核查插件，不修改全局信任设置。升级依赖时必须重新检查。
 
@@ -50,6 +50,10 @@ SwiftTerm 1.19.0 包含生成自身 Git 版本信息的 build-tool plugin。已�
 - iPhone：服务器、终端、设置三页导航。终端为独立页面，文件和监控通过 Sheet 打开。
 - iPad：NavigationSplitView 侧栏与终端工作区；文件、监控和设置使用适合触控的独立 Sheet。窄窗口自动采用紧凑布局。
 - “新建连接”支持密码和通过文件选择器导入 OpenSSH Ed25519 私钥（可含口令）。可只保存非秘密配置，也可保存后连接；“将认证信息保存在本机 Keychain”默认关闭，不记住的凭据只用于本次连接。
+- 连接表单的“文件与服务模式”只建立认证后的 SSH transport，不请求 PTY 或 shell，供 SFTP 和服务器支持的服务/监控使用；受限账号是否允许 SFTP、exec 仍由服务器决定。
+- 跳板机选择一台已保存的直连主机，两端分别验证主机指纹并认证。暂不支持多跳；缺失跳板机、凭据或目标信任时明确失败，不降级直连。未保存连接重新打开时保留路由和模式。
+- 交互式认证支持 keyboard-interactive，以及密码/密钥被服务器部分接受后继续验证 MFA。逐轮显示确切账号、地址和服务器原始提示；答案只用于当前请求，不保存。关闭、取消或 iOS 后台会取消未完成认证。
+- macOS Agent 只使用明确填写的 SHA256 公钥指纹，不遍历尝试其他密钥，也不做 Agent forwarding。优先选择“使用应用容器内专用 Agent”，在本机终端手动执行表单给出的 `ssh-agent -a ...`、`SSH_AUTH_SOCK=... ssh-add` 命令，并用同一 socket 的 `ssh-add -l` 获取指纹。应用不执行这些配置命令、不读取私钥。socket 与目录书签只在本机保存；容器外系统 Agent 可能被 App Sandbox 拒绝，选择目录不保证开放 socket 网络权限，遇到此限制会明确报错。iOS 不提供 Agent 认证入口。
 - 已保存主机可编辑、分组、收藏、删除或测试连接。点击当前已连接主机选中其标签；右键/长按“在新标签页中打开”可建立独立会话。删除配置不强制中断正在使用的终端。
 - 首次连接必须明确确认 SHA256 主机指纹；已信任密钥变化将阻止连接。取消连接、关闭标签都会结束后台任务。重连可使用保存的 Keychain 引用；未保存、丢失或不可访问时要求重新输入。修改地址、端口、账号或认证方式不会静默沿用旧凭据。
 - SFTP 支持目录导航、新建目录、重命名、删除空目录或文件、上传与下载；文件名按原始值处理。上传使用 64 KiB 数据块和远端临时文件，覆盖须明确确认。下载完成后通过系统保存窗口存储到本机。传输可取消和重试，最终提交时显示“正在完成”。
@@ -85,6 +89,8 @@ python3 scripts/check-release.py --source-only # 隐私资源、图标与本地�
 ./scripts/archive-release.sh ios --unsigned   # arm64 真机目标编译，不能分发
 ./scripts/test-local-ssh.sh  # 本机临时真实 OpenSSH + Rust 集成测试
 ./scripts/test-local-ssh.sh --apple  # 额外运行三端 Rust/UniFFI/SwiftTerm 链路
+./scripts/test-local-ssh.sh --connections # Phase 8 无 PTY、跳板、MFA 和 Agent 的隔离真实 SSH
+CONNDOCK_CONNECTIONS_APPLE=1 ./scripts/test-local-ssh.sh --connections # 额外验证三端 transport/SFTP/跳板的 UniFFI 链路
 CONNDOCK_TEST_PHASE=phase2 \
 CONNDOCK_TEST_METHOD=testSavedHostsUseKeychainAndSwitchLiveSessions \
 ./scripts/test-local-ssh.sh --apple  # 真实 Keychain、磁盘重开、多会话切换

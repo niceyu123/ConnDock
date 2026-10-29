@@ -115,6 +115,33 @@ final class TerminalSplitTests: XCTestCase {
   }
 
   #if os(macOS)
+    func testFocusRequestedBeforeAttachmentIsRestoredOnlyForTheCurrentPane() throws {
+      for changeSelection in [false, true] {
+        let workspace = try workspace()
+        let tab = workspace.selection
+        workspace.connect(
+          target: ConnectionTarget(
+            displayName: "Test", host: "example.invalid", port: 22, username: "test",
+            usesPrivateKey: false), authentication: .password(password: ""))
+        let session = try XCTUnwrap(workspace.selectedSession)
+        session.close()
+        let window = NSWindow(
+          contentRect: NSRect(x: 80, y: 80, width: 640, height: 400),
+          styleMask: [.titled], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        defer { window.close() }
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 100, height: 30))
+        window.contentView?.addSubview(field)
+        window.makeKeyAndOrderFront(nil)
+        XCTAssertTrue(window.makeFirstResponder(field))
+        let view = session.surface.view
+        workspace.activateTerminal(tab)
+        if changeSelection { workspace.addTerminal() }
+        window.contentView?.addSubview(view)
+        XCTAssertEqual(window.firstResponder === view, !changeSelection)
+      }
+    }
+
     func testNativeFocusSurvivesDirectionChangeAndJoining() async throws {
       let workspace = try workspace()
       let first = workspace.selection

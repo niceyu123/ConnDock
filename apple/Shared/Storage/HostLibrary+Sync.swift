@@ -51,10 +51,20 @@ extension HostLibrary {
           throw CloudSyncFailure.localStore
         }
         var value = SyncedHost(row)
+        let connection = try storedConnectionOptions(for: row.id)
+        let previousSchema =
+          try existing[identity.recordName].map {
+            try SyncDocument.decode($0.documentData).schemaVersion
+          } ?? 1
+        value.connectionOptions = connection.isAdvanced ? connection : nil
         value.tags =
           try context.fetch(FetchDescriptor<StoredHostLabels>()).first { $0.hostID == row.id }?
           .labels ?? []
         document = SyncDocument(
+          // Once upgraded, keep v2 even when the user explicitly clears a route.
+          // This distinguishes that action from an old client's incomplete edit.
+          schemaVersion: connection.isAdvanced || !row.authMethod.needsCredential
+            || previousSchema == 2 ? 2 : 1,
           identity: identity, version: version, deleted: row.deletedAt != nil,
           createdAt: row.createdAt, updatedAt: row.updatedAt,
           host: row.deletedAt == nil ? value : nil)
@@ -269,6 +279,7 @@ extension HostLibrary {
     row.updatedAt = document.updatedAt
     row.deletedAt = nil
     try setTags(HostTags.normalized(value.tags ?? []), for: row.id)
+    try setConnectionOptions(value.connectionOptions ?? HostConnectionOptions(), for: row.id)
     row.syncRevision += 1
     return retired
   }

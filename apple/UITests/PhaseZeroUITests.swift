@@ -485,6 +485,77 @@ final class PhaseZeroUITests: XCTestCase {
       let expectLinux: Bool?
       let uploadFilePath: String?
       let exportDirectoryPath: String?
+      let agentSocket: String?
+      let agentFingerprint: String?
+    }
+
+    func testAgentConnectionThroughForm() throws {
+      guard let path = ProcessInfo.processInfo.environment["CONNDOCK_UI_SSH_CONFIGURATION"] else {
+        throw XCTSkip("Requires isolated agent fixture")
+      }
+      let configuration = try JSONDecoder().decode(
+        SSHUIConfiguration.self, from: Data(contentsOf: URL(fileURLWithPath: path)))
+      let socket = try XCTUnwrap(configuration.agentSocket)
+      let fingerprint = try XCTUnwrap(configuration.agentFingerprint)
+      guard configuration.host == "127.0.0.1" else { throw SSHUIError.invalidConfiguration }
+      launch(reset: true)
+      press(app.buttons["sidebarNewHost"])
+      for (identifier, value) in [
+        ("connectionName", "Agent Fixture"), ("connectionHost", configuration.host),
+        ("connectionPort", String(configuration.port)),
+        ("connectionUsername", configuration.username),
+      ] {
+        let field = app.textFields[identifier]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        press(field)
+        field.typeKey("a", modifierFlags: .command)
+        field.typeText(value)
+      }
+      // Set this before the longer Agent setup section moves it below the
+      // macOS sheet viewport. It stays selected when the auth form changes.
+      let filesOnly = app.descendants(matching: .any)["connectionFilesOnly"].firstMatch
+      press(filesOnly)
+      XCTAssertEqual(String(describing: filesOnly.value ?? ""), "1")
+      press(app.popUpButtons["connectionAuthentication"])
+      press(app.menuItems["SSH Agent（仅 Mac）"])
+      app.textFields["agentSocket"].click()
+      app.textFields["agentSocket"].typeText(socket)
+      app.textFields["agentFingerprint"].click()
+      app.textFields["agentFingerprint"].typeText(fingerprint)
+      press(app.buttons["authorizeAgentDirectory"])
+      app.typeKey("g", modifierFlags: [.command, .shift])
+      app.typeText(URL(fileURLWithPath: socket).deletingLastPathComponent().path)
+      app.typeKey(.return, modifierFlags: [])
+      let open = app.buttons["OKButton"]
+      XCTAssertTrue(open.waitForExistence(timeout: 5))
+      press(open)
+      let connect = app.buttons["connectionConnect"]
+      XCTAssertTrue(connect.waitForExistence(timeout: 5))
+      press(connect)
+      let trust = app.buttons["trustHostKey"]
+      let trustVisible = trust.waitForExistence(timeout: 10)
+      if !trustVisible {
+        let tree = XCTAttachment(string: app.debugDescription)
+        tree.name = "phase8-agent-before-trust"
+        tree.lifetime = .keepAlways
+        add(tree)
+        capture("phase8-agent-before-trust")
+      }
+      XCTAssertTrue(trustVisible)
+      press(trust)
+      let status = app.staticTexts["connectionStatus"]
+      let connected = XCTNSPredicateExpectation(
+        predicate: NSPredicate(format: "value == %@", "已连接"), object: status)
+      let result = XCTWaiter.wait(for: [connected], timeout: 15)
+      capture("phase8-agent-authorized")
+      if result != .completed {
+        let tree = XCTAttachment(string: app.debugDescription)
+        tree.name = "phase8-agent-diagnostics"
+        tree.lifetime = .keepAlways
+        add(tree)
+      }
+      XCTAssertEqual(result, .completed)
+      app.terminate()
     }
 
     func testRealSSHConnectionFormAndScreenshots() throws {

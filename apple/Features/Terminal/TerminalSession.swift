@@ -8,11 +8,16 @@ struct ConnectionTarget: Equatable, Sendable {
   var port: UInt16
   var username: String
   var usesPrivateKey: Bool
+  var authenticationMethod: HostAuthMethod? = nil
+  var resolvedAuthenticationMethod: HostAuthMethod {
+    authenticationMethod ?? (usesPrivateKey ? .ed25519 : .password)
+  }
 
   var title: String { displayName.isEmpty ? host : displayName }
   func hasSameIdentity(as other: Self) -> Bool {
     host.lowercased() == other.host.lowercased() && port == other.port
-      && username == other.username && usesPrivateKey == other.usesPrivateKey
+      && username == other.username
+      && resolvedAuthenticationMethod == other.resolvedAuthenticationMethod
   }
 }
 
@@ -29,6 +34,12 @@ final class TerminalSession {
   let target: ConnectionTarget
   let sourceHostID: UUID?
   let isConnectionTest: Bool
+  let connectionOptions: HostConnectionOptions
+  private(set) var jumpSession: TerminalSession?
+  private(set) var authenticationChallenge: InteractiveChallenge?
+  var agentAccess: AgentSocketAccess?
+  var authenticatedConnection: SshConnection? { isConnected ? connection : nil }
+  @ObservationIgnored private var startup: Task<Void, Never>?
   private(set) var state: SessionState = .connecting
   private(set) var failure: FailureCode?
   private(set) var endReason: DisconnectReason?
@@ -46,6 +57,7 @@ final class TerminalSession {
   var onEnded: ((UUID) -> Void)?
   var onConnected: (() -> Void)?
   var onFocus: (() -> Void)?
+  var onAuthentication: ((UUID) -> Void)?
   private(set) var testSucceeded = false
   private(set) var files: RemoteFilesModel?
   private(set) var monitor: ServerMonitorModel?
@@ -56,12 +68,14 @@ final class TerminalSession {
   @ObservationIgnored private var receivedEnd = false
 
   init(
-    id: UUID, target: ConnectionTarget, sourceHostID: UUID? = nil, isConnectionTest: Bool = false
+    id: UUID, target: ConnectionTarget, sourceHostID: UUID? = nil, isConnectionTest: Bool = false,
+    connectionOptions: HostConnectionOptions = HostConnectionOptions()
   ) {
     self.id = id
     self.target = target
     self.sourceHostID = sourceHostID
     self.isConnectionTest = isConnectionTest
+    self.connectionOptions = connectionOptions
   }
 
   deinit {
@@ -69,6 +83,7 @@ final class TerminalSession {
     polling?.cancel()
     recovery?.cancel()
     recoveryOperation?.cancel()
+    startup?.cancel()
   }
 
   var surface: TerminalSurface {
@@ -79,6 +94,7 @@ final class TerminalSession {
   }
 
   var isConnected: Bool { state == .connected && !isSuspended && !isCheckingConnection }
+  var canSendInput: Bool { isConnected && !connectionOptions.filesOnly }
   var isActive: Bool {
     return switch state {
     case .connecting, .verifyingHostKey, .authenticating, .connected, .disconnecting: true
@@ -100,20 +116,56 @@ final class TerminalSession {
     }
   }
 
-  func connect(authentication: AuthenticationRequest, trustedFingerprint: String?) {
+  func connect(
+    authentication: AuthenticationRequest, trustedFingerprint: String?, jump: TerminalSession? = nil
+  ) {
+    jumpSession = jump
+    if let jump {
+      startup = Task { [weak self] in
+        while !Task.isCancelled, self?.receivedEnd == false {
+          if let transport = jump.authenticatedConnection {
+            self?.startConnection(
+              authentication: authentication, trustedFingerprint: trustedFingerprint,
+              jump: transport)
+            self?.startup = nil
+            return
+          }
+          if !jump.isActive {
+            self?.localErrorKey = "ssh.error.jumpFailed"
+            self?.close()
+            return
+          }
+          do { try await Task.sleep(for: .milliseconds(16)) } catch { return }
+        }
+      }
+    } else {
+      startConnection(
+        authentication: authentication, trustedFingerprint: trustedFingerprint, jump: nil)
+    }
+  }
+
+  private func startConnection(
+    authentication: AuthenticationRequest, trustedFingerprint: String?, jump: SshConnection?
+  ) {
     do {
-      let connection = try SshConnection(
+      let connection = try connectAdvanced(
         request: ConnectionRequest(
           host: target.host, port: target.port, username: target.username,
           trustedFingerprint: trustedFingerprint, columns: columns, rows: rows, timeoutSeconds: 20),
-        authentication: authentication)
+        authentication: authentication, transportOnly: connectionOptions.filesOnly,
+        allowInteractive: connectionOptions.allowInteractive
+          || target.resolvedAuthenticationMethod == .keyboardInteractive, jump: jump)
       self.connection = connection
       if !isConnectionTest {
         files = RemoteFilesModel(connection: connection)
         monitor = ServerMonitorModel(connection: connection)
       }
       startPolling(connection)
-    } catch { fail(error) }
+    } catch {
+      fail(error)
+      jumpSession?.close()
+      jumpSession = nil
+    }
   }
 
   private func startPolling(_ connection: SshConnection) {
@@ -200,6 +252,15 @@ final class TerminalSession {
     for event in events {
       guard !receivedEnd else { return }
       switch event {
+      case .authenticationChallenge(let requestID, let name, let instructions, let prompts):
+        guard state == .connecting || state == .authenticating, !isSuspended else {
+          connection?.disconnect()
+          continue
+        }
+        authenticationChallenge = InteractiveChallenge(
+          sessionID: id, requestID: requestID, target: target, name: name,
+          instructions: instructions, prompts: prompts)
+        onAuthentication?(id)
       case .stateChanged(let state):
         if self.state != .disconnecting { self.state = state }
         if state == .connected && self.state == .connected {
@@ -220,6 +281,10 @@ final class TerminalSession {
         receivedBytes += data.count
         surface.view.feed(byteArray: Array(data)[...])
       case .ended(let reason, let error, let status):
+        agentAccess = nil
+        authenticationChallenge = nil
+        jumpSession?.close()
+        jumpSession = nil
         cancelRecovery()
         isSuspended = false
         receivedEnd = true
@@ -246,7 +311,7 @@ final class TerminalSession {
   }
 
   func send(_ bytes: [UInt8]) {
-    guard isConnected, !bytes.isEmpty else { return }
+    guard isConnected, !connectionOptions.filesOnly, !bytes.isEmpty else { return }
     guard pendingInput.count + bytes.count <= 256 * 1024 else {
       localErrorKey = "ssh.error.inputBackpressure"
       disconnect()
@@ -288,6 +353,13 @@ final class TerminalSession {
 
   func disconnect() {
     guard isActive else { return }
+    if connection == nil {
+      close()
+      return
+    }
+    authenticationChallenge = nil
+    startup?.cancel()
+    jumpSession?.close()
     cancelRecovery()
     isSuspended = false
     if let connection { startPolling(connection) }
@@ -299,6 +371,12 @@ final class TerminalSession {
   }
 
   func close() {
+    agentAccess = nil
+    authenticationChallenge = nil
+    startup?.cancel()
+    startup = nil
+    jumpSession?.close()
+    jumpSession = nil
     cancelRecovery()
     isSuspended = false
     files?.setConnected(false, userInitiated: true)
@@ -320,6 +398,24 @@ final class TerminalSession {
     if case SshError.Failure(let code) = error { failure = code } else { failure = .internal }
     state = .failed
   }
+
+  func respondAuthentication(_ challenge: InteractiveChallenge, responses: [String]?) {
+    guard authenticationChallenge?.id == challenge.id,
+      state == .connecting || state == .authenticating,
+      !isSuspended
+    else { return }
+    authenticationChallenge = nil
+    guard let responses else {
+      disconnect()
+      return
+    }
+    do {
+      try connection?.respondAuthentication(id: challenge.requestID, responses: responses)
+    } catch {
+      fail(error)
+      connection?.disconnect()
+    }
+  }
 }
 
 extension FailureCode {
@@ -332,6 +428,8 @@ extension FailureCode {
     case .hostKeyChanged: "ssh.error.hostKeyChanged"
     case .unsupportedHostKey: "ssh.error.unsupportedHostKey"
     case .authenticationFailed: "ssh.error.authenticationFailed"
+    case .agentUnavailable: "ssh.error.agentUnavailable"
+    case .agentAccessDenied: "ssh.error.agentAccessDenied"
     case .invalidPrivateKey: "ssh.error.invalidPrivateKey"
     case .unsupportedPrivateKey: "ssh.error.unsupportedPrivateKey"
     case .ptyFailed: "ssh.error.ptyFailed"

@@ -1,3 +1,4 @@
+import SSHCoreBridge
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -23,6 +24,13 @@ struct NewHostSheet: View {
   @State private var isSaving = false
   @State private var showKeyImporter = false
   @State private var errorKey: String?
+  @State private var filesOnly = false
+  @State private var jumpHostID: UUID?
+  @State private var allowInteractive = false
+  @State private var agentSocket = ""
+  @State private var agentFingerprint = ""
+  @State private var showAgentDirectoryImporter = false
+  @State private var agentDirectory: URL?
   private let savedID: UUID?
   private let revision: Int64?
   private let savedIdentity: ConnectionTarget?
@@ -31,7 +39,8 @@ struct NewHostSheet: View {
 
   init(
     host: StoredHost? = nil, target: ConnectionTarget? = nil, requireCredential: Bool = false,
-    testOnly: Bool = false, persistenceAvailable: Bool = true
+    testOnly: Bool = false, persistenceAvailable: Bool = true,
+    connectionOptions: HostConnectionOptions? = nil
   ) {
     savedID = host?.id
     revision = host?.syncRevision
@@ -44,13 +53,19 @@ struct NewHostSheet: View {
       _hostname = State(initialValue: target.host)
       _username = State(initialValue: target.username)
       _port = State(initialValue: String(target.port))
-      _authentication = State(initialValue: target.usesPrivateKey ? .ed25519 : .password)
+      _authentication = State(initialValue: target.resolvedAuthenticationMethod)
     }
     _groupID = State(initialValue: host?.groupID)
     _favorite = State(initialValue: host?.favorite ?? false)
     _notes = State(initialValue: host?.notes ?? "")
     _saveConfiguration = State(initialValue: persistenceAvailable && (host != nil || target == nil))
     _rememberCredential = State(initialValue: host?.credentialRef != nil)
+    if let connectionOptions {
+      _filesOnly = State(initialValue: connectionOptions.filesOnly)
+      _jumpHostID = State(initialValue: connectionOptions.jumpHostID)
+      _allowInteractive = State(initialValue: connectionOptions.allowInteractive)
+      _agentFingerprint = State(initialValue: connectionOptions.agentFingerprint ?? "")
+    }
   }
 
   private var draft: HostDraft? {
@@ -67,6 +82,10 @@ struct NewHostSheet: View {
     value.favorite = favorite
     value.notes = notes
     value.tags = tags.components(separatedBy: CharacterSet(charactersIn: ",，"))
+    value.connectionOptions = HostConnectionOptions(
+      filesOnly: filesOnly, jumpHostID: jumpHostID,
+      allowInteractive: allowInteractive || authentication == .keyboardInteractive,
+      agentFingerprint: authentication == .agent ? agentFingerprint : nil)
     return value
   }
 
@@ -76,6 +95,7 @@ struct NewHostSheet: View {
     case .ed25519:
       privateKey.isEmpty
         ? nil : .ed25519(privateKey: privateKey, passphrase: passphrase.isEmpty ? nil : passphrase)
+    case .keyboardInteractive, .agent: nil
     }
   }
   private var canReuseCredential: Bool {
@@ -83,7 +103,19 @@ struct NewHostSheet: View {
     return draft.target.hasSameIdentity(as: savedIdentity)
   }
   private var canConnect: Bool {
-    draft != nil && (enteredCredential != nil || canReuseCredential) && !isSaving
+    draft != nil && (enteredAuthentication != nil || canReuseCredential) && !isSaving
+  }
+  private var enteredAuthentication: AuthenticationRequest? {
+    if authentication == .keyboardInteractive { return .keyboardInteractive }
+    if authentication == .agent {
+      #if os(macOS)
+        guard agentSocket.hasPrefix("/"), !agentFingerprint.isEmpty else { return nil }
+        return .agent(socketPath: agentSocket, fingerprint: agentFingerprint)
+      #else
+        return nil
+      #endif
+    }
+    return enteredCredential?.request
   }
 
   var body: some View {
@@ -103,14 +135,22 @@ struct NewHostSheet: View {
         }
         Section {
           Picker(preferences.text("host.authentication"), selection: $authentication) {
-            ForEach(HostAuthMethod.allCases, id: \.self) { method in
+            ForEach(
+              HostAuthMethod.allCases.filter { method in
+                #if os(macOS)
+                  true
+                #else
+                  method != .agent
+                #endif
+              }, id: \.self
+            ) { method in
               Copy(method.titleKey).tag(method)
             }
           }.accessibilityIdentifier("connectionAuthentication")
           if authentication == .password {
             SecureField(preferences.text("host.password"), text: $password).accessibilityIdentifier(
               "connectionPassword")
-          } else {
+          } else if authentication == .ed25519 {
             Button {
               showKeyImporter = true
             } label: {
@@ -119,6 +159,31 @@ struct NewHostSheet: View {
             .accessibilityIdentifier("importPrivateKey")
             if !keyName.isEmpty { Text(verbatim: keyName).font(.caption).textSelection(.enabled) }
             SecureField(preferences.text("ssh.key.passphrase"), text: $passphrase)
+          } else if authentication == .agent {
+            TextField(preferences.text("host.agentSocket"), text: $agentSocket)
+              .autocorrectionDisabled()
+              .accessibilityIdentifier("agentSocket")
+            TextField(preferences.text("host.agentFingerprint"), text: $agentFingerprint)
+              .autocorrectionDisabled()
+              .accessibilityIdentifier("agentFingerprint")
+            Button(preferences.text("host.agentAuthorize")) { showAgentDirectoryImporter = true }
+              .accessibilityIdentifier("authorizeAgentDirectory")
+            Button(preferences.text("host.agentDedicated")) {
+              do {
+                let directory = try AgentSocketAccess.dedicatedDirectory()
+                agentDirectory = directory
+                agentSocket = directory.appendingPathComponent("agent.sock").path
+              } catch { errorKey = "storage.error.unavailable" }
+            }
+            if agentDirectory != nil { Copy("host.agentAuthorized").font(.caption) }
+            if !agentSocket.isEmpty {
+              Text(verbatim: AgentSocketAccess.setupCommands(socketPath: agentSocket))
+                .font(.caption.monospaced()).textSelection(.enabled)
+              Copy("host.agentSetupNotice").font(.caption).foregroundStyle(.secondary)
+            }
+            Copy("host.agentNotice").font(.caption).foregroundStyle(.secondary)
+          } else {
+            Copy("ssh.interactive.notice").font(.caption).foregroundStyle(.secondary)
           }
           if canReuseCredential {
             SymbolLabel(key: "host.savedCredentialAvailable", symbol: "key.fill").foregroundStyle(
@@ -131,11 +196,33 @@ struct NewHostSheet: View {
           Copy("host.authentication")
         }
         Section {
+          Toggle(preferences.text("host.filesOnly"), isOn: $filesOnly)
+            .accessibilityIdentifier("connectionFilesOnly")
+          Toggle(preferences.text("host.allowInteractive"), isOn: $allowInteractive)
+            .accessibilityIdentifier("connectionAllowInteractive")
+          Picker(preferences.text("host.jump"), selection: $jumpHostID) {
+            Copy("host.direct").tag(UUID?.none)
+            ForEach(
+              (workspace.library?.hosts ?? []).filter {
+                $0.id != savedID
+                  && workspace.library?.connectionOptions(for: $0.id).jumpHostID == nil
+              }
+            ) { host in
+              Text(verbatim: host.title).tag(Optional(host.id))
+            }
+          }.accessibilityIdentifier("connectionJumpHost")
+          Copy("host.jumpNotice").font(.caption).foregroundStyle(.secondary)
+        } header: {
+          Copy("host.advanced")
+        }
+        Section {
           Toggle(preferences.text("host.saveConfiguration"), isOn: $saveConfiguration)
             .disabled(workspace.library == nil).accessibilityIdentifier("saveHostToggle")
           if saveConfiguration {
-            Toggle(preferences.text("host.rememberCredential"), isOn: $rememberCredential)
-              .accessibilityIdentifier("rememberCredentialToggle")
+            if authentication.needsCredential {
+              Toggle(preferences.text("host.rememberCredential"), isOn: $rememberCredential)
+                .accessibilityIdentifier("rememberCredentialToggle")
+            }
             Picker(preferences.text("hosts.groups"), selection: $groupID) {
               Copy("hosts.ungrouped").tag(UUID?.none)
               ForEach(workspace.library?.groups ?? []) { group in
@@ -186,13 +273,25 @@ struct NewHostSheet: View {
       .fileImporter(isPresented: $showKeyImporter, allowedContentTypes: [.item]) { result in
         importKey(result)
       }
+      .fileImporter(isPresented: $showAgentDirectoryImporter, allowedContentTypes: [.folder]) {
+        result in
+        if case .success(let directory) = result { agentDirectory = directory }
+      }
       #if os(iOS)
         .textInputAutocapitalization(.never)
       #endif
     }
     .interactiveDismissDisabled(isSaving)
     .task {
-      if let savedID { tags = workspace.library?.tags(for: savedID).joined(separator: ", ") ?? "" }
+      if let savedID {
+        tags = workspace.library?.tags(for: savedID).joined(separator: ", ") ?? ""
+        let options = workspace.library?.connectionOptions(for: savedID) ?? HostConnectionOptions()
+        filesOnly = options.filesOnly
+        jumpHostID = options.jumpHostID
+        allowInteractive = options.allowInteractive
+        agentFingerprint = options.agentFingerprint ?? ""
+        agentSocket = workspace.library?.agentSocket(for: savedID) ?? ""
+      }
     }
     #if os(macOS)
       .frame(width: 540, height: 680)
@@ -223,9 +322,14 @@ struct NewHostSheet: View {
 
   private func perform(connect: Bool) async {
     guard let draft else { return }
+    let originatingTab = workspace.selection
+    let lifecycle = workspace.connectionLifecycleRevision
     isSaving = true
     defer { isSaving = false }
     do {
+      let agentBookmark = try (authentication == .agent ? agentDirectory : nil).map { directory in
+        try AgentSocketAccess(directory: directory, socketPath: agentSocket).bookmark()
+      }
       var credential = enteredCredential
       if connect && credential == nil, canReuseCredential, let savedID,
         let library = workspace.library, let host = library.host(savedID)
@@ -235,21 +339,38 @@ struct NewHostSheet: View {
         }
         credential = try await library.credential(for: host)
       }
-      if connect && credential == nil { throw HostLibraryError.credential }
+      let authentication = enteredAuthentication ?? credential?.request
+      if connect && authentication == nil { throw HostLibraryError.credential }
+      if connect {
+        guard !workspace.isBackgrounded, workspace.connectionLifecycleRevision == lifecycle,
+          workspace.selection == originatingTab,
+          workspace.tabs.contains(where: { $0.id == originatingTab })
+        else { throw HostLibraryError.conflict }
+      }
       var hostID: UUID?
       if saveConfiguration {
         guard let library = workspace.library else { throw HostLibraryError.unavailable }
         let saved = try await library.saveHost(
-          draft, credential: enteredCredential, rememberCredential: rememberCredential)
+          draft, credential: enteredCredential,
+          rememberCredential: rememberCredential && self.authentication.needsCredential)
         hostID = saved.id
+        if self.authentication == .agent { library.setAgentSocket(agentSocket, for: saved.id) }
+        if self.authentication == .agent, let agentBookmark {
+          library.storeAgentAuthorization(agentBookmark, for: saved.id)
+        }
         workspace.selectedHostID = saved.id
       } else if let savedID, savedIdentity?.hasSameIdentity(as: draft.target) == true {
         hostID = savedID
       }
-      if connect, let credential {
-        workspace.connect(
-          target: draft.target, authentication: credential.request, sourceHostID: hostID,
-          testOnly: testOnly)
+      if connect, let authentication {
+        guard !workspace.isBackgrounded, workspace.connectionLifecycleRevision == lifecycle,
+          workspace.selection == originatingTab,
+          workspace.tabs.contains(where: { $0.id == originatingTab })
+        else { throw HostLibraryError.conflict }
+        try await workspace.connectPrepared(
+          target: draft.target, authentication: authentication, sourceHostID: hostID,
+          testOnly: testOnly, options: draft.connectionOptions ?? HostConnectionOptions(),
+          agentDirectory: agentDirectory)
       }
       password = ""
       privateKey = ""

@@ -60,6 +60,7 @@ public final class WorkspaceState {
   private(set) var trustPrompt: HostKeyChallenge?
   private(set) var isBackgrounded = false
   private var applicationRevision = 0
+  var connectionLifecycleRevision: Int { applicationRevision }
   public func setApplicationBackgrounded(_ backgrounded: Bool) {
     guard isBackgrounded != backgrounded else { return }
     applicationRevision &+= 1
@@ -74,8 +75,22 @@ public final class WorkspaceState {
   }
   private var queuedTrust: [HostKeyChallenge] = []
   var reconnectTarget: ConnectionTarget?
+  var reconnectOptions: HostConnectionOptions?
   private(set) var connectionRevision = 0
   private var sessions: [UUID: TerminalSession] = [:]
+  private var ownedSessions: [TerminalSession] {
+    sessions.values.flatMap { session in [session] + (session.jumpSession.map { [$0] } ?? []) }
+  }
+  private var authenticationOrder: [UUID] = []
+  var authenticationPrompt: InteractiveChallenge? {
+    authenticationOrder.compactMap { id in
+      ownedSessions.first(where: { $0.id == id })?.authenticationChallenge
+    }.first
+  }
+  func answerAuthentication(_ prompt: InteractiveChallenge, responses: [String]?) {
+    guard let session = ownedSessions.first(where: { $0.id == prompt.sessionID }) else { return }
+    session.respondAuthentication(prompt, responses: responses)
+  }
   #if os(macOS)
     private var localShells: [UUID: LocalShellSession] = [:]
     var selectedLocalShell: LocalShellSession? { localShells[selection] }
@@ -192,8 +207,21 @@ public final class WorkspaceState {
     selection = id
     #if os(macOS)
       let view: NSView? = localShells[id]?.view ?? sessions[id]?.surface.view
-      if let view, let window = view.window {
-        window.makeFirstResponder(view)
+      if let view {
+        let restore: () -> Void = { [weak self, weak view] in
+          guard let self, let view, self.selection == id,
+            self.tabs.contains(where: { $0.id == id }),
+            !self.showNewHost, !self.showGroupEditor, self.trustPrompt == nil,
+            self.authenticationPrompt == nil,
+            self.localShells[id]?.view === view || self.sessions[id]?.surface.view === view
+          else { return }
+          view.window?.makeFirstResponder(view)
+        }
+        // SwiftUI may reparent a native surface after its layout task runs.
+        // Keep the guarded request until the actual window attachment occurs.
+        (view as? FocusedTerminalView)?.onWindowAttachment = restore
+        (view as? FocusedLocalTerminalView)?.onWindowAttachment = restore
+        restore()
       } else if sessions[id] == nil && localShells[id] == nil {
         NSApp.keyWindow?.makeFirstResponder(nil)
       }
@@ -247,10 +275,16 @@ public final class WorkspaceState {
 
   func connect(
     target: ConnectionTarget, authentication: AuthenticationRequest,
-    sourceHostID: UUID? = nil, testOnly: Bool = false
+    sourceHostID: UUID? = nil, testOnly: Bool = false,
+    options: HostConnectionOptions = HostConnectionOptions(), jump: TerminalSession? = nil
   ) {
     guard !isBackgrounded else {
+      jump?.close()
       operationErrorKey = "ssh.error.backgroundCancelled"
+      return
+    }
+    guard options.jumpHostID == nil || jump != nil else {
+      operationErrorKey = "ssh.error.jumpFailed"
       return
     }
     if selectedTab?.isLocal == true { addTerminal() }
@@ -260,9 +294,11 @@ public final class WorkspaceState {
     let id = selection
     if let index = tabs.firstIndex(where: { $0.id == id }) { tabs[index].title = target.title }
     let session = TerminalSession(
-      id: UUID(), target: target, sourceHostID: sourceHostID, isConnectionTest: testOnly)
+      id: UUID(), target: target, sourceHostID: sourceHostID, isConnectionTest: testOnly,
+      connectionOptions: options)
     sessions[id] = session
     session.onFocus = { [weak self] in self?.focusTerminal(id) }
+    session.onAuthentication = { [weak self] id in self?.queueAuthentication(id) }
     session.onHostKey = { [weak self] challenge in self?.enqueueTrust(challenge) }
     session.onEnded = { [weak self] id in self?.removeTrustPrompt(for: id) }
     if let sourceHostID, !testOnly {
@@ -274,8 +310,9 @@ public final class WorkspaceState {
     }
     do {
       let fingerprint = try trustStore.fingerprint(host: target.host, port: target.port)
-      session.connect(authentication: authentication, trustedFingerprint: fingerprint)
+      session.connect(authentication: authentication, trustedFingerprint: fingerprint, jump: jump)
     } catch {
+      jump?.close()
       session.localErrorKey = "ssh.error.trustStore"
       session.close()
     }
@@ -292,7 +329,7 @@ public final class WorkspaceState {
       current.fingerprint == challenge.fingerprint, current.algorithm == challenge.algorithm
     else { return false }
     trustPrompt = queuedTrust.isEmpty ? nil : queuedTrust.removeFirst()
-    guard let session = sessions.values.first(where: { $0.id == challenge.id }) else {
+    guard let session = ownedSessions.first(where: { $0.id == challenge.id }) else {
       return false
     }
     if accept {
@@ -331,6 +368,7 @@ public final class WorkspaceState {
     }
     editingHostID = nil
     reconnectTarget = selectedSession?.target
+    reconnectOptions = selectedSession?.connectionOptions
     showNewHost = true
   }
 
@@ -340,8 +378,12 @@ public final class WorkspaceState {
   }
 
   private func removeTrustPrompt(for id: UUID) {
+    authenticationOrder.removeAll { $0 == id }
     queuedTrust.removeAll { $0.id == id }
     if trustPrompt?.id == id { trustPrompt = queuedTrust.isEmpty ? nil : queuedTrust.removeFirst() }
+  }
+  private func queueAuthentication(_ id: UUID) {
+    if !authenticationOrder.contains(id) { authenticationOrder.append(id) }
   }
 
   func session(for tab: UUID) -> TerminalSession? { sessions[tab] }
@@ -355,6 +397,7 @@ public final class WorkspaceState {
   func requestEditHost(_ id: UUID, requireCredential: Bool = false, testOnly: Bool = false) {
     editingHostID = id
     reconnectTarget = nil
+    reconnectOptions = nil
     requireCredentialInput = requireCredential
     editorTestOnly = testOnly
     showNewHost = true
@@ -363,6 +406,7 @@ public final class WorkspaceState {
   func finishHostEditing() {
     editingHostID = nil
     reconnectTarget = nil
+    reconnectOptions = nil
     requireCredentialInput = false
     editorTestOnly = false
   }
@@ -374,10 +418,13 @@ public final class WorkspaceState {
       return
     }
     let target = host.target
+    let hostRevision = host.syncRevision
+    let options = library.connectionOptions(for: id)
     if !newTab && !testOnly,
       let active = sessions.first(where: {
         $0.value.sourceHostID == id && $0.value.target.hasSameIdentity(as: target)
           && $0.value.isActive && !$0.value.isConnectionTest
+          && $0.value.connectionOptions == options
       })
     {
       selection = active.key
@@ -389,7 +436,7 @@ public final class WorkspaceState {
     let originatingTab = selection
     defer { openingHostID = nil }
     do {
-      let credential = try await library.credential(for: host)
+      let authentication = try await library.authentication(for: host)
       guard selection == originatingTab, tabs.contains(where: { $0.id == originatingTab }) else {
         return
       }
@@ -397,17 +444,18 @@ public final class WorkspaceState {
         operationErrorKey = "ssh.error.backgroundCancelled"
         return
       }
-      guard let credential else {
+      guard let authentication else {
         requestEditHost(id, requireCredential: true, testOnly: testOnly)
         return
       }
-      guard !isBackgrounded, library.host(id)?.target.hasSameIdentity(as: target) == true else {
+      guard !isBackgrounded, library.host(id)?.target.hasSameIdentity(as: target) == true,
+        library.host(id)?.syncRevision == hostRevision
+      else {
         throw HostLibraryError.conflict
       }
-      if newTab { addTerminal() }
-      selectedHostID = id
-      connect(
-        target: target, authentication: credential.request, sourceHostID: id, testOnly: testOnly)
+      try await connectPrepared(
+        target: target, authentication: authentication, sourceHostID: id,
+        testOnly: testOnly, options: options, newTab: newTab)
     } catch {
       guard selection == originatingTab, tabs.contains(where: { $0.id == originatingTab }) else {
         return
@@ -419,6 +467,77 @@ public final class WorkspaceState {
       operationErrorKey =
         (error as? HostLibraryError)?.localizationKey ?? "storage.error.credential"
     }
+  }
+
+  func connectPrepared(
+    target: ConnectionTarget, authentication: AuthenticationRequest,
+    sourceHostID: UUID?, testOnly: Bool, options: HostConnectionOptions, newTab: Bool = false,
+    agentDirectory: URL? = nil
+  ) async throws {
+    let origin = selection
+    let revision = applicationRevision
+    let hostRevision = sourceHostID.flatMap { library?.host($0)?.syncRevision }
+    var jumpSession: TerminalSession?
+    let agentAccess: AgentSocketAccess?
+    if case .agent(let socket, _) = authentication {
+      if let agentDirectory {
+        agentAccess = try AgentSocketAccess(directory: agentDirectory, socketPath: socket)
+      } else if let sourceHostID {
+        agentAccess = try library?.agentAccess(for: sourceHostID, socketPath: socket)
+      } else {
+        throw HostLibraryError.credential
+      }
+    } else {
+      agentAccess = nil
+    }
+    if let jumpID = options.jumpHostID {
+      guard let library, let host = library.host(jumpID), jumpID != sourceHostID,
+        library.connectionOptions(for: jumpID).jumpHostID == nil
+      else { throw HostLibraryError.invalidHost }
+      let jumpTarget = host.target
+      let jumpRevision = host.syncRevision
+      guard let auth = try await library.authentication(for: host) else {
+        throw HostLibraryError.jumpCredential
+      }
+      guard selection == origin, tabs.contains(where: { $0.id == origin }), !isBackgrounded,
+        revision == applicationRevision, library.host(jumpID)?.syncRevision == jumpRevision,
+        library.host(jumpID)?.target.hasSameIdentity(as: jumpTarget) == true
+      else { throw HostLibraryError.conflict }
+      var jumpOptions = library.connectionOptions(for: jumpID)
+      jumpOptions.filesOnly = true
+      let parent = TerminalSession(id: UUID(), target: jumpTarget, connectionOptions: jumpOptions)
+      if case .agent(let socket, _) = auth {
+        parent.agentAccess = try library.agentAccess(for: jumpID, socketPath: socket)
+      }
+      parent.onHostKey = { [weak self] in self?.enqueueTrust($0) }
+      parent.onAuthentication = { [weak self] id in self?.queueAuthentication(id) }
+      parent.onEnded = { [weak self] in self?.removeTrustPrompt(for: $0) }
+      let fingerprint = try trustStore.fingerprint(host: jumpTarget.host, port: jumpTarget.port)
+      parent.connect(authentication: auth, trustedFingerprint: fingerprint)
+      jumpSession = parent
+    }
+    guard selection == origin, tabs.contains(where: { $0.id == origin }),
+      revision == applicationRevision,
+      !isBackgrounded
+    else {
+      jumpSession?.close()
+      throw HostLibraryError.conflict
+    }
+    if let sourceHostID {
+      guard library?.host(sourceHostID)?.syncRevision == hostRevision,
+        library?.host(sourceHostID)?.target.hasSameIdentity(as: target) == true
+      else {
+        jumpSession?.close()
+        throw HostLibraryError.conflict
+      }
+    }
+    if newTab { addTerminal() }
+    selectedHostID = sourceHostID
+    connect(
+      target: target, authentication: authentication, sourceHostID: sourceHostID,
+      testOnly: testOnly,
+      options: options, jump: jumpSession)
+    if selectedSession?.isActive == true { selectedSession?.agentAccess = agentAccess }
   }
 
   func requestGroupEditor(_ id: UUID? = nil) {

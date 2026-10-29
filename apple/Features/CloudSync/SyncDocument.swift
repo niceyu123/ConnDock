@@ -45,6 +45,7 @@ struct SyncedHost: Codable, Equatable, Sendable {
   var favorite: Bool
   var sortIndex: Int
   var tags: [String]? = nil
+  var connectionOptions: HostConnectionOptions? = nil
 
   @MainActor init(_ host: StoredHost) {
     displayName = host.displayName
@@ -67,6 +68,7 @@ struct SyncedHost: Codable, Equatable, Sendable {
       displayName.count <= 256, notes.count <= 4096
     else { throw CloudSyncFailure.invalidRecord }
     if let tags { _ = try HostTags.normalized(tags) }
+    try connectionOptions?.validate()
   }
 }
 
@@ -106,7 +108,7 @@ struct SyncDocument: Codable, Equatable, Sendable {
   static let maximumBytes = 64 * 1024
 
   func validate() throws {
-    guard schemaVersion == 1, version.counter > 0, version.counter < Int64.max,
+    guard (1...2).contains(schemaVersion), version.counter > 0, version.counter < Int64.max,
       createdAt.timeIntervalSince1970.isFinite, updatedAt.timeIntervalSince1970.isFinite
     else { throw CloudSyncFailure.invalidRecord }
     if deleted {
@@ -117,6 +119,9 @@ struct SyncDocument: Codable, Equatable, Sendable {
     case .host:
       guard let host, group == nil else { throw CloudSyncFailure.invalidRecord }
       try host.validate()
+      if host.connectionOptions?.isAdvanced == true || !host.authMethod.needsCredential {
+        guard schemaVersion == 2 else { throw CloudSyncFailure.invalidRecord }
+      }
     case .group:
       guard let group, host == nil,
         !group.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -147,6 +152,11 @@ struct SyncDocument: Codable, Equatable, Sendable {
   func wins(over other: Self) throws -> Bool {
     guard identity == other.identity else { throw CloudSyncFailure.invalidRecord }
     if deleted != other.deleted { return deleted }
+    // An offline legacy client cannot represent the route or authentication
+    // semantics of v2. Its edits must never silently turn that host into direct SSH.
+    if identity.kind == .host, schemaVersion != other.schemaVersion {
+      return schemaVersion > other.schemaVersion
+    }
     if version.counter != other.version.counter { return version.counter > other.version.counter }
     if version.device != other.version.device {
       return version.device.uuidString > other.version.device.uuidString

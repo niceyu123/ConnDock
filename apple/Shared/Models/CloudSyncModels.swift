@@ -10,12 +10,13 @@ enum HostSchemaV2: VersionedSchema {
 
 enum HostMigrationPlan: SchemaMigrationPlan {
   static var schemas: [any VersionedSchema.Type] {
-    [HostSchemaV1.self, HostSchemaV2.self, HostSchemaV3.self]
+    [HostSchemaV1.self, HostSchemaV2.self, HostSchemaV3.self, HostSchemaV4.self]
   }
   static var stages: [MigrationStage] {
     [
       .lightweight(fromVersion: HostSchemaV1.self, toVersion: HostSchemaV2.self),
       .lightweight(fromVersion: HostSchemaV2.self, toVersion: HostSchemaV3.self),
+      .lightweight(fromVersion: HostSchemaV3.self, toVersion: HostSchemaV4.self),
     ]
   }
 }

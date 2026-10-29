@@ -227,6 +227,10 @@
         let target = host?.target
         let revision = host?.syncRevision
         let reference = host?.credentialRef
+        let jumpID = host.flatMap { library.connectionOptions(for: $0.id).jumpHostID }
+        let jump = jumpID.flatMap { library.host($0) }
+        let jumpRevision = jump?.syncRevision
+        let jumpReference = jump?.credentialRef
         let control = MCPExecutionControl()
         controls[id] = control
         defer {
@@ -245,6 +249,11 @@
               host.credentialRef == reference, host.target.hasSameIdentity(as: target),
               self.policy.allows(parsed.tool, host: host)
             else { throw MCPFailure("HOST_NOT_AUTHORIZED") }
+            if let jumpID {
+              guard let jump, self.library.host(jumpID) != nil, jump.syncRevision == jumpRevision,
+                jump.credentialRef == jumpReference, self.policy.allows(parsed.tool, host: jump)
+              else { throw MCPFailure("JUMP_NOT_AUTHORIZED") }
+            }
           }
         }
         let monitor = Task { [weak self] in

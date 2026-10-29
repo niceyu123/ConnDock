@@ -8,8 +8,11 @@ TEST_METHOD="${CONNDOCK_TEST_METHOD:-testRealSSHThroughNativeTerminal}"
 PHASE="${CONNDOCK_TEST_PHASE:-phase1}"
 PLATFORM="${CONNDOCK_TEST_PLATFORM:-all}"
 [[ "$PLATFORM" == all || "$PLATFORM" == macos ]] || { echo 'Unsupported test platform' >&2; exit 1; }
-[[ "$PHASE" == phase1 || "$PHASE" == phase2 || "$PHASE" == phase3 || "$PHASE" == phase5 || "$PHASE" == phase6 ]] || { echo 'Unsupported test phase' >&2; exit 1; }
-[[ "$TEST_METHOD" == testRealSSHThroughNativeTerminal || "$TEST_METHOD" == testSavedHostsUseKeychainAndSwitchLiveSessions || "$TEST_METHOD" == testRealSSHConnectionFormAndScreenshots || "$TEST_METHOD" == testSFTPAndLinuxMonitorThroughBridge || "$TEST_METHOD" == testMCPThroughHelperAndRealSSH || "$TEST_METHOD" == testSessionLifecycleRecoveryAndRepeatedTabs ]] || { echo 'Unsupported test method' >&2; exit 1; }
+[[ "$PHASE" == phase1 || "$PHASE" == phase2 || "$PHASE" == phase3 || "$PHASE" == phase5 || "$PHASE" == phase6 || "$PHASE" == phase8 ]] || { echo 'Unsupported test phase' >&2; exit 1; }
+[[ "$TEST_METHOD" == testRealSSHThroughNativeTerminal || "$TEST_METHOD" == testSavedHostsUseKeychainAndSwitchLiveSessions || "$TEST_METHOD" == testRealSSHConnectionFormAndScreenshots || "$TEST_METHOD" == testSFTPAndLinuxMonitorThroughBridge || "$TEST_METHOD" == testMCPThroughHelperAndRealSSH || "$TEST_METHOD" == testSessionLifecycleRecoveryAndRepeatedTabs || "$TEST_METHOD" == testAdvancedTransportThroughBridge || "$TEST_METHOD" == testAgentConnectionThroughForm ]] || { echo 'Unsupported test method' >&2; exit 1; }
+if [[ "$TEST_METHOD" == testAdvancedTransportThroughBridge ]]; then
+    [[ "$PHASE" == phase8 && "${CONNDOCK_TEST_ISOLATED:-}" == 1 && "${CONNDOCK_TEST_HOST:-}" == 127.0.0.1 ]] || { echo 'Advanced connection verification requires an isolated loopback fixture.' >&2; exit 1; }
+fi
 if [[ "$TEST_METHOD" == testSessionLifecycleRecoveryAndRepeatedTabs ]]; then
     [[ "$PHASE" == phase6 && "${CONNDOCK_TEST_ISOLATED:-}" == 1 && "${CONNDOCK_TEST_HOST:-}" == 127.0.0.1 ]] || { echo 'Stability verification requires the isolated loopback fixture.' >&2; exit 1; }
 fi
@@ -19,7 +22,7 @@ fi
 if [[ "$TEST_METHOD" == testSFTPAndLinuxMonitorThroughBridge ]]; then
     [[ "$PHASE" == phase3 && "${CONNDOCK_TEST_ISOLATED:-}" == 1 && "${CONNDOCK_TEST_HOST:-}" == 127.0.0.1 && -n "${CONNDOCK_TEST_WORK_DIRECTORY:-}" ]] || { echo 'Phase 3 write verification requires the isolated loopback fixture.' >&2; exit 1; }
 fi
-if [[ "$TEST_METHOD" == testRealSSHConnectionFormAndScreenshots ]]; then
+if [[ "$TEST_METHOD" == testRealSSHConnectionFormAndScreenshots || "$TEST_METHOD" == testAgentConnectionThroughForm ]]; then
     [[ "$PLATFORM" == macos && "$AUTH_METHOD" == ed25519 && "${CONNDOCK_TEST_HOST:-}" == 127.0.0.1 && -n "${CONNDOCK_TEST_WORK_DIRECTORY:-}" ]] || { echo 'UI SSH verification requires the isolated local fixture and macOS.' >&2; exit 1; }
 fi
 if [[ "$AUTH_METHOD" == password ]]; then AUTH_FILE_NAME=CONNDOCK_TEST_PASSWORD_FILE
@@ -84,6 +87,10 @@ config=dict(host=os.environ['CONNDOCK_TEST_HOST'],port=int(os.environ['CONNDOCK_
             runCodex=os.environ.get('CONNDOCK_TEST_MCP_CODEX')=='1',
             runIdentifier=os.environ['CONNDOCK_TEST_RUN_ID'],
             captureScreenshots=os.environ.get('CONNDOCK_TEST_CAPTURE_SCREENSHOTS','1')=='1')
+if os.environ.get('CONNDOCK_TEST_PHASE')=='phase8':
+    config['agentSocket']=os.environ.get('SSH_AUTH_SOCK')
+    config['agentFingerprint']=os.environ.get('CONNDOCK_TEST_AGENT_FINGERPRINT')
+    config['targetPort']=int(os.environ.get('CONNDOCK_TEST_TARGET_PORT','22'))
 if os.environ['CONNDOCK_TEST_AUTH_METHOD']=='password':
     config['password']=Path(os.environ['CONNDOCK_TEST_PASSWORD_FILE']).read_text().rstrip('\r\n')
 else:
@@ -100,7 +107,7 @@ PY
 STAMP="$(date +%Y%m%d-%H%M%S)"
 if [[ "${CONNDOCK_TEST_REBUILD_BRIDGE:-}" == 1 ]]; then scripts/build-xcframework.sh; fi
 xcodegen generate --spec apple/project.yml
-if [[ "$TEST_METHOD" == testRealSSHConnectionFormAndScreenshots ]]; then
+if [[ "$TEST_METHOD" == testRealSSHConnectionFormAndScreenshots || "$TEST_METHOD" == testAgentConnectionThroughForm ]]; then
     # Keep runner-owned one-shot input outside protected Documents paths.
     UI_CONFIG_DIRECTORY="$(mktemp -d "${TMPDIR:-/tmp}/ConnDock-UI-SSH.XXXXXX")"
     chmod 700 "$UI_CONFIG_DIRECTORY"
@@ -115,7 +122,8 @@ config=dict(host=os.environ['CONNDOCK_TEST_HOST'],port=int(os.environ['CONNDOCK_
             expectLinux=os.environ.get('CONNDOCK_TEST_EXPECT_LINUX')=='1',
             uploadFilePath=os.environ.get('CONNDOCK_TEST_UI_UPLOAD_FILE'),
             exportDirectoryPath=os.environ.get('CONNDOCK_TEST_UI_EXPORT_DIRECTORY'),
-            runIdentifier=os.environ['CONNDOCK_TEST_RUN_ID'])
+            runIdentifier=os.environ['CONNDOCK_TEST_RUN_ID'],
+            agentSocket=os.environ.get('SSH_AUTH_SOCK'),agentFingerprint=os.environ.get('CONNDOCK_TEST_AGENT_FINGERPRINT'))
 fd=os.open(sys.argv[1],os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
 with os.fdopen(fd,'w') as f:json.dump(config,f)
 PY

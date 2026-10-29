@@ -3,13 +3,17 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 MODE="${1:-}"
-case "$MODE" in ''|--apple|--apple-only) ;; *) echo 'Usage: test-local-ssh.sh [--apple|--apple-only]' >&2; exit 2 ;; esac
+case "$MODE" in ''|--apple|--apple-only|--connections) ;; *) echo 'Usage: test-local-ssh.sh [--apple|--apple-only|--connections]' >&2; exit 2 ;; esac
 export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
 mkdir -p "$ROOT/build"
 TEST_DIR="$(mktemp -d "$ROOT/build/ssh-test.XXXXXX")"
 chmod 700 "$TEST_DIR"
 SERVER_PID=''
+CONNDOCK_AGENT_PID=''
+CONNDOCK_AGENT_DIRECTORY=''
 cleanup() {
+    if [[ -n "$CONNDOCK_AGENT_PID" ]]; then kill "$CONNDOCK_AGENT_PID" >/dev/null 2>&1 || true; fi
+    if [[ -n "$CONNDOCK_AGENT_DIRECTORY" ]]; then rm -f "$CONNDOCK_AGENT_DIRECTORY/agent.sock"; rmdir "$CONNDOCK_AGENT_DIRECTORY" 2>/dev/null || true; fi
     if [[ -n "$SERVER_PID" ]]; then kill "$SERVER_PID" 2>/dev/null || true; wait "$SERVER_PID" 2>/dev/null || true; fi
     rm -f "$TEST_DIR/client" "$TEST_DIR/rejected-client" "$TEST_DIR/host"
 }
@@ -54,6 +58,9 @@ ForceCommand $TEST_DIR/dispatch.sh
 PrintMotd no
 LogLevel ERROR
 EOF
+if [[ "$MODE" == --connections ]]; then
+    printf '\nPermitTTY no\nAllowTcpForwarding yes\n' >> "$TEST_DIR/sshd_config"
+fi
 cat > "$TEST_DIR/dispatch.sh" <<'EOF'
 #!/bin/bash
 if [[ "${SSH_ORIGINAL_COMMAND:-}" == /usr/libexec/sftp-server ]]; then
@@ -74,6 +81,20 @@ export CONNDOCK_TEST_UNAUTHORIZED_KEY_FILE="$TEST_DIR/rejected-client"
 export CONNDOCK_TEST_WORK_DIRECTORY="$TEST_DIR/work"
 export CONNDOCK_TEST_READY_MARKER=__CONNDOCK_TEST_READY__
 export CONNDOCK_TEST_FINGERPRINT="$(ssh-keygen -lf "$TEST_DIR/host.pub" -E sha256 | awk '{print $2}')"
+if [[ "$MODE" == --connections ]]; then
+    export CONNDOCK_TEST_TARGET_PORT="$TEST_PORT" CONNDOCK_TEST_ISOLATED=1
+    export SSH_AUTH_SOCK="$TEST_DIR/agent.sock"
+    if [[ "${CONNDOCK_TEST_AGENT_IN_CONTAINER:-}" == 1 ]]; then
+        CONNDOCK_AGENT_DIRECTORY="$(mktemp -d "$HOME/Library/Containers/local.SSHClient.macOS/Data/Library/Caches/CDa.XXXXXX")"
+        chmod 700 "$CONNDOCK_AGENT_DIRECTORY"
+        export SSH_AUTH_SOCK="$CONNDOCK_AGENT_DIRECTORY/agent.sock"
+    fi
+    ssh-agent -D -a "$SSH_AUTH_SOCK" > "$TEST_DIR/agent.log" 2>&1 &
+    CONNDOCK_AGENT_PID=$!
+    for attempt in {1..100}; do [[ -S "$SSH_AUTH_SOCK" ]] && break; sleep .05; done
+    ssh-add "$TEST_DIR/client" > "$TEST_DIR/agent-add.log" 2>&1
+    export CONNDOCK_TEST_AGENT_FINGERPRINT="$(ssh-keygen -lf "$TEST_DIR/client.pub" -E sha256 | awk '{print $2}')"
+fi
 python3 - <<'PY'
 import os,socket,time
 for attempt in range(50):
@@ -84,6 +105,17 @@ else:raise SystemExit('Local OpenSSH failed to start')
 PY
 if [[ "$MODE" == --apple-only ]]; then
     "$ROOT/scripts/test-apple-ssh.sh"
+    exit
+fi
+if [[ "$MODE" == --connections ]]; then
+    cd "$ROOT/rust-core"
+    cargo test --locked -p conndock-core --test connections -- --ignored --test-threads=1
+    if [[ "${CONNDOCK_CONNECTIONS_APPLE:-}" == 1 ]]; then
+        cd "$ROOT"
+        export CONNDOCK_TEST_PHASE=phase8
+        export CONNDOCK_TEST_METHOD="${CONNDOCK_TEST_METHOD:-testAdvancedTransportThroughBridge}"
+        "$ROOT/scripts/test-apple-ssh.sh"
+    fi
     exit
 fi
 cd "$ROOT/rust-core"

@@ -3,7 +3,8 @@ import Observation
 import SwiftData
 
 enum HostLibraryError: Error {
-  case invalidHost, invalidGroup, duplicateGroup, conflict, notFound, busy, unavailable, credential
+  case invalidHost, invalidGroup, duplicateGroup, conflict, notFound, busy, unavailable, credential,
+    jumpCredential
   var localizationKey: String {
     switch self {
     case .invalidHost: "storage.error.invalidHost"
@@ -14,6 +15,7 @@ enum HostLibraryError: Error {
     case .busy: "storage.error.busy"
     case .unavailable: "storage.error.unavailable"
     case .credential: "storage.error.credential"
+    case .jumpCredential: "ssh.error.jumpCredential"
     }
   }
 }
@@ -23,6 +25,7 @@ final class HostLibrary {
   private(set) var hosts: [StoredHost] = []
   private(set) var groups: [StoredHostGroup] = []
   private(set) var hostTags: [UUID: [String]] = [:]
+  private(set) var connectionProfiles: [UUID: HostConnectionOptions] = [:]
   private(set) var isBusy = false
   private(set) var cleanupPending = false
   private(set) var refreshErrorKey: String?
@@ -30,7 +33,7 @@ final class HostLibrary {
   @ObservationIgnored private let container: ModelContainer
   @ObservationIgnored let context: ModelContext
   @ObservationIgnored private let vault: any CredentialStorage
-  @ObservationIgnored private let cleanupDefaults: UserDefaults
+  @ObservationIgnored let cleanupDefaults: UserDefaults
   @ObservationIgnored private let cleanupKey = "credentials.pendingDeletion.v1"
 
   init(
@@ -40,7 +43,7 @@ final class HostLibrary {
   ) throws {
     self.vault = vault
     self.cleanupDefaults = cleanupDefaults
-    let schema = Schema(versionedSchema: HostSchemaV3.self)
+    let schema = Schema(versionedSchema: HostSchemaV4.self)
     let configuration: ModelConfiguration
     if memoryOnly {
       configuration = ModelConfiguration(
@@ -69,6 +72,15 @@ final class HostLibrary {
   }
 
   private func reload() throws {
+    var profiles: [UUID: HostConnectionOptions] = [:]
+    for row in try context.fetch(FetchDescriptor<StoredHostConnectionOptions>()) {
+      let value = try JSONDecoder().decode(HostConnectionOptions.self, from: row.data)
+      try value.validate()
+      guard profiles.updateValue(value, forKey: row.hostID) == nil else {
+        throw HostLibraryError.unavailable
+      }
+    }
+    connectionProfiles = profiles
     hostTags = [:]
     for row in try context.fetch(FetchDescriptor<StoredHostLabels>()) {
       guard hostTags.updateValue(row.labels, forKey: row.hostID) == nil else {
@@ -157,6 +169,16 @@ final class HostLibrary {
     draft.username = draft.username.trimmingCharacters(in: .whitespacesAndNewlines)
     draft.displayName = draft.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
     try validate(draft)
+    if let options = draft.connectionOptions {
+      try options.validate()
+      if let jumpID = options.jumpHostID {
+        guard jumpID != draft.id, let jump = host(jumpID),
+          connectionOptions(for: jump.id).jumpHostID == nil
+        else {
+          throw HostLibraryError.invalidHost
+        }
+      }
+    }
     let tags = try draft.tags.map { try HostTags.normalized($0) }
     let existing = draft.id.flatMap(host)
     if draft.id != nil && existing == nil { throw HostLibraryError.notFound }
@@ -199,6 +221,7 @@ final class HostLibrary {
     row.updatedAt = Date()
     if existing != nil { row.syncRevision += 1 }
     do {
+      if let options = draft.connectionOptions { try setConnectionOptions(options, for: row.id) }
       if let tags { try setTags(tags, for: row.id) }
       try commit(syncChanges: [.host(row.id)])
     } catch {

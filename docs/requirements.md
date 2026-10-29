@@ -217,6 +217,8 @@ Phase 7 先实现终端分屏和 SSH Config 导入：macOS/iPad 常规宽度支�
 
 SSH Config 由用户选择文件后预览并勾选导入，支持明确别名、HostName/User/Port 和匹配的 Host 默认值，遵守首值优先。未支持的代理、条件和包含指令必须明确提示并阻止受影响条目静默直连；不执行本机命令、不自动读取 IdentityFile 或导入秘密、不覆盖已有主机、不自动连接。
 
+Phase 8 实现文件与服务模式（仅认证 transport，不请求 PTY/shell）、单台已保存直连跳板机、keyboard-interactive/MFA 和 macOS 本机 Agent。跳板机与目标分别校验指纹和认证，失败不降级直连，目标关闭释放其独占跳板连接；未保存连接重开表单仍保留连接选项。交互挑战须展示原始目标和服务器提示，逐轮响应，不保存答案；取消、后台和关闭丢弃迟到结果。Agent 只使用用户指定的本机 socket 及公钥指纹，不转发 Agent，不读取私钥，iOS 不提供 Agent 入口。保留 App Sandbox，已验收路径为用户手动启动并加载密钥的容器内专用 Agent；容器外 socket 可能被系统拒绝，目录授权不保证解除网络限制。非机密连接选项使用 SwiftData V4 和加密同步文档 schema 2，升级过的主机不接受旧 schema 记录清除连接语义；Agent socket 和目录授权为本机偏好。MCP 使用无 PTY transport，经跳板时两端都需授权，拒绝要求交互认证的配置。SSH Config 的代理指令在导入器扩展前继续明确阻断，用户在主机表单配置跳板机。
+
 ## 6. 核心数据模型建议
 
 **Host**：`id(UUID)`、`displayName`、`hostname`、`port(Int)`、`username`、`authMethod`、`credentialRef`、`groupId`、`notes`、`favorite`、`sortIndex`、`createdAt`、`updatedAt`、`deletedAt?`、`syncRevision`。

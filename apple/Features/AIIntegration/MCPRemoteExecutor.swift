@@ -13,6 +13,45 @@
     {
       try control.check()
       let target = invocation.target
+      let options = invocation.library.connectionOptions(for: invocation.host.id)
+      guard !options.allowInteractive && invocation.host.authMethod.needsCredential else {
+        throw MCPFailure("INTERACTIVE_AUTH_REQUIRED")
+      }
+      var jumpConnection: SshConnection?
+      if let jumpID = options.jumpHostID {
+        guard let jump = invocation.library.host(jumpID), jumpID != invocation.host.id,
+          invocation.library.connectionOptions(for: jumpID).jumpHostID == nil,
+          !invocation.library.connectionOptions(for: jumpID).allowInteractive,
+          jump.authMethod.needsCredential
+        else {
+          throw MCPFailure("JUMP_UNAVAILABLE")
+        }
+        let jumpTarget = jump.target
+        let jumpRevision = jump.syncRevision
+        guard let fp = try trustStore.fingerprint(host: jumpTarget.host, port: jumpTarget.port),
+          let credential = try await invocation.library.credential(
+            for: jump, allowsUserInteraction: false)
+        else {
+          throw MCPFailure("JUMP_UNAVAILABLE")
+        }
+        try control.check()
+        guard invocation.library.host(jumpID)?.syncRevision == jumpRevision else {
+          throw MCPFailure("JUMP_UNAVAILABLE")
+        }
+        let parent = try connectAdvanced(
+          request: ConnectionRequest(
+            host: jumpTarget.host, port: jumpTarget.port, username: jumpTarget.username,
+            trustedFingerprint: fp, columns: 80, rows: 24, timeoutSeconds: 20),
+          authentication: credential.request,
+          transportOnly: true, allowInteractive: false, jump: nil)
+        control.connection = parent
+        do { try await waitForTransport(parent, control: control) } catch {
+          parent.disconnect()
+          throw error
+        }
+        jumpConnection = parent
+      }
+      defer { jumpConnection?.disconnect() }
       let fingerprint: String
       do {
         guard let saved = try trustStore.fingerprint(host: target.host, port: target.port) else {
@@ -35,17 +74,28 @@
       try control.check()
       let connection: SshConnection
       do {
-        connection = try SshConnection(
+        connection = try connectAdvanced(
           request: ConnectionRequest(
             host: target.host, port: target.port, username: target.username,
             trustedFingerprint: fingerprint, columns: 80, rows: 24, timeoutSeconds: 20),
-          authentication: credential.request)
+          authentication: credential.request, transportOnly: true, allowInteractive: false,
+          jump: jumpConnection)
       } catch { throw MCPFailure("CONNECTION_FAILED") }
       control.connection = connection
       defer {
         connection.disconnect()
         control.connection = nil
       }
+      try await waitForTransport(connection, control: control)
+      try control.check()
+      do {
+        return try await executeTool(invocation, connection: connection, control: control)
+      }
+    }
+
+    private func waitForTransport(_ connection: SshConnection, control: MCPExecutionControl)
+      async throws
+    {
       let deadline = Date().addingTimeInterval(25)
       var connected = false
       while !connected {
@@ -55,6 +105,7 @@
           switch event {
           case .stateChanged(let state): if state == .connected { connected = true }
           case .hostKey: throw MCPFailure("HOST_TRUST_REQUIRED")
+          case .authenticationChallenge: throw MCPFailure("INTERACTIVE_AUTH_REQUIRED")
           case .ended(_, let error, _):
             switch error {
             case .hostKeyChanged, .hostKeyRejected: throw MCPFailure("HOST_TRUST_FAILED")
@@ -68,7 +119,10 @@
         }
         if !connected { try await Task.sleep(for: .milliseconds(16)) }
       }
-      try control.check()
+    }
+    private func executeTool(
+      _ invocation: MCPInvocation, connection: SshConnection, control: MCPExecutionControl
+    ) async throws -> MCPValue {
       do {
         switch invocation.request.tool {
         case .getServerMetrics:

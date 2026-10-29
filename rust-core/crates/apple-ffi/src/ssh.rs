@@ -22,6 +22,8 @@ mapped_enum!(
     HostKeyChanged,
     UnsupportedHostKey,
     AuthenticationFailed,
+    AgentUnavailable,
+    AgentAccessDenied,
     InvalidPrivateKey,
     UnsupportedPrivateKey,
     PtyFailed,
@@ -80,10 +82,27 @@ pub enum AuthenticationRequest {
         private_key: String,
         passphrase: Option<String>,
     },
+    KeyboardInteractive,
+    Agent {
+        socket_path: String,
+        fingerprint: String,
+    },
+}
+
+#[derive(uniffi::Record)]
+pub struct AuthenticationPrompt {
+    pub prompt: String,
+    pub echo: bool,
 }
 
 #[derive(uniffi::Enum)]
 pub enum SshEvent {
+    AuthenticationChallenge {
+        id: u64,
+        name: String,
+        instructions: String,
+        prompts: Vec<AuthenticationPrompt>,
+    },
     StateChanged {
         state: SessionState,
     },
@@ -103,6 +122,23 @@ pub enum SshEvent {
 impl From<core::SessionEvent> for SshEvent {
     fn from(value: core::SessionEvent) -> Self {
         match value {
+            core::SessionEvent::AuthenticationChallenge {
+                id,
+                name,
+                instructions,
+                prompts,
+            } => Self::AuthenticationChallenge {
+                id,
+                name,
+                instructions,
+                prompts: prompts
+                    .into_iter()
+                    .map(|p| AuthenticationPrompt {
+                        prompt: p.prompt,
+                        echo: p.echo,
+                    })
+                    .collect(),
+            },
             core::SessionEvent::State(state) => Self::StateChanged {
                 state: state.into(),
             },
@@ -129,7 +165,7 @@ impl From<core::SessionEvent> for SshEvent {
 
 #[derive(uniffi::Object)]
 pub struct SshConnection {
-    inner: core::SshSession,
+    inner: Arc<core::SshSession>,
 }
 
 #[uniffi::export]
@@ -139,26 +175,12 @@ impl SshConnection {
         request: ConnectionRequest,
         authentication: AuthenticationRequest,
     ) -> Result<Arc<Self>, SshError> {
-        let mut options =
-            core::ConnectionOptions::new(request.host, request.port, request.username);
-        options.trusted_fingerprint = request.trusted_fingerprint;
-        options.size = core::TerminalSize::new(request.columns, request.rows)?;
-        options.timeout = Duration::from_secs(request.timeout_seconds.into());
-        let auth = match authentication {
-            AuthenticationRequest::Password { password } => {
-                core::Authentication::Password(Zeroizing::new(password))
-            }
-            AuthenticationRequest::Ed25519 {
-                private_key,
-                passphrase,
-            } => core::Authentication::Ed25519 {
-                private_key: Zeroizing::new(private_key),
-                passphrase: passphrase.map(Zeroizing::new),
-            },
-        };
-        Ok(Arc::new(Self {
-            inner: core::SshSession::start(options, auth)?,
-        }))
+        connect_advanced(request, authentication, false, false, None)
+    }
+    pub fn respond_authentication(&self, id: u64, responses: Vec<String>) -> Result<(), SshError> {
+        self.inner
+            .respond_authentication(id, responses)
+            .map_err(Into::into)
     }
     pub fn poll_events(&self) -> Vec<SshEvent> {
         self.inner
@@ -235,4 +257,51 @@ impl SshConnection {
     pub fn start_linux_monitor(&self) -> Result<Arc<crate::RemoteMonitor>, crate::RemoteFailure> {
         Ok(crate::RemoteMonitor::wrap(self.inner.linux_monitor()?))
     }
+}
+
+#[uniffi::export]
+pub fn connect_advanced(
+    request: ConnectionRequest,
+    authentication: AuthenticationRequest,
+    transport_only: bool,
+    allow_interactive: bool,
+    jump: Option<Arc<SshConnection>>,
+) -> Result<Arc<SshConnection>, SshError> {
+    let mut options = core::ConnectionOptions::new(request.host, request.port, request.username);
+    options.trusted_fingerprint = request.trusted_fingerprint;
+    options.size = core::TerminalSize::new(request.columns, request.rows)?;
+    options.timeout = Duration::from_secs(request.timeout_seconds.into());
+    options.mode = if transport_only {
+        core::SessionMode::Transport
+    } else {
+        core::SessionMode::Terminal
+    };
+    options.allow_interactive = allow_interactive;
+    let auth = match authentication {
+        AuthenticationRequest::KeyboardInteractive => core::Authentication::KeyboardInteractive,
+        AuthenticationRequest::Agent {
+            socket_path,
+            fingerprint,
+        } => core::Authentication::Agent {
+            socket_path,
+            fingerprint,
+        },
+        AuthenticationRequest::Password { password } => {
+            core::Authentication::Password(Zeroizing::new(password))
+        }
+        AuthenticationRequest::Ed25519 {
+            private_key,
+            passphrase,
+        } => core::Authentication::Ed25519 {
+            private_key: Zeroizing::new(private_key),
+            passphrase: passphrase.map(Zeroizing::new),
+        },
+    };
+    let session = match jump {
+        Some(parent) => core::SshSession::start_via(options, auth, parent.inner.clone())?,
+        None => core::SshSession::start(options, auth)?,
+    };
+    Ok(Arc::new(SshConnection {
+        inner: Arc::new(session),
+    }))
 }
