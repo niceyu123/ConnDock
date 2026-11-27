@@ -1,10 +1,22 @@
 # ConnDock
 
-产品与 App 显示名称为 **ConnDock**，Xcode 工程为 `ConnDock.xcodeproj`；Target、模块和二进制开发名称仍为 ConnDock。App Store Connect 已新建独立 ConnDock 记录，旧 TermAll 的 TestFlight 构建属于旧身份，不能作为新 App 的构建。
+[English](README.en.md) · [下载 macOS 预发行版](https://github.com/niceyu123/ConnDock/releases)
 
-面向 macOS、iPhone、iPad 的原生 SSH 客户端。Phase 7 已提供终端分屏和 SSH Config 导入，本次 Phase 8 增加文件与服务模式、单跳跳板机、交互式认证/MFA 和 macOS 专用 SSH Agent。阶段记录见 [Phase 8](docs/PHASE8-VALIDATION.md)，后续授权范围见 [剩余阶段](docs/REMAINING-STAGES.md)。真实双设备云端同步、正式沙盒和分发验收按对应记录独立推进。
+ConnDock 是面向 macOS、iPhone 和 iPad 的原生 SSH 客户端，集成多标签终端、SFTP 文件管理、Linux 资源监控和 SSH Config 导入，支持简体中文与英文。
 
-唯一有效任务书：[docs/requirements.md](docs/requirements.md)。原始 V1.2 导入文件仅保留在本地。主界面视觉参考：[docs/ui/macos-dark.png](docs/ui/macos-dark.png)。后续开发必须遵循 [AGENTS.md](AGENTS.md)，按阶段交付。
+## 下载
+
+在 [GitHub Releases](https://github.com/niceyu123/ConnDock/releases) 获取 macOS ZIP。预发行包支持 **Apple 芯片 Mac（arm64）**，最低 macOS 14。它采用本地签名，尚未经过 Apple 公证，预览构建关闭 iCloud 同步。iPhone 与 iPad 可通过 Xcode 从源码构建。
+
+## 界面截图
+
+![ConnDock macOS 新建 SSH 连接与认证选项](docs/readme-images/macos.png)
+
+| iPhone | iPad |
+| --- | --- |
+| <img src="docs/readme-images/iphone.png" alt="ConnDock iPhone 界面" width="260"> | <img src="docs/readme-images/ipad.png" alt="ConnDock iPad 界面" width="510"> |
+
+开发规格见 [任务书](docs/requirements.md)，构建与验证约定见 [AGENTS.md](AGENTS.md)。
 
 ## 环境与版本
 
@@ -37,7 +49,7 @@ xcodegen generate --spec apple/project.yml
 open apple/ConnDock.xcodeproj
 ```
 
-Xcode 选择 `ConnDock-macOS` 或 `ConnDock-iOS` Scheme。Debug/Release 配置使用 Team `86HC8YA388`、新 Bundle `com.ruohai.conndock` 和独立 `iCloud.com.ruohai.conndock` Container；CloudKit 容器已关联新 App ID，两平台 Development 签名和 entitlement 已核对，发行签名与真实云端验证仍待完成。`Local` 配置保留原 `local.SSHClient.macOS` / `local.SSHClient.iOS`、ad-hoc 签名及无云端权限；测试脚本显式选择 Local，当前仅 Apple Silicon 模拟器。macOS 保留 App Sandbox、出站与用户选择文件读写；为默认关闭的 MCP Unix socket 增加 network.server，未启用时不监听，不提供 HTTP。正式 helper 与主 App 使用独立 macOS App Group；Local helper 为 ad-hoc 诊断形态，不能代替正式沙盒验收。详见 [CloudKit 配置与手动步骤](docs/PHASE4-CLOUDKIT-SETUP.md)。
+Xcode 选择 `ConnDock-macOS` 或 `ConnDock-iOS` Scheme。Debug/Release 配置面向已配置 Apple Developer 团队、应用标识和 CloudKit 容器的开发环境。`Local` 配置保留原 `local.SSHClient.macOS` / `local.SSHClient.iOS`、ad-hoc 签名及无云端权限；测试脚本显式选择 Local，当前仅 Apple Silicon 模拟器。macOS 保留 App Sandbox、出站与用户选择文件读写；为默认关闭的 MCP Unix socket 增加 network.server，未启用时不监听，不提供 HTTP。正式 helper 与主 App 使用独立 macOS App Group；Local helper 为 ad-hoc 诊断形态，不能代替正式沙盒验收。详见 [CloudKit 配置与手动步骤](docs/PHASE4-CLOUDKIT-SETUP.md)。
 
 SwiftTerm 1.19.0 包含生成自身 Git 版本信息的 build-tool plugin。已核查固定版本的插件和生成器，仅读取包内 Git 信息、写入派生 Swift 文件。Xcode 首次打开时可显示插件信任提示；本地脚本通过本次命令的 `-skipPackagePluginValidation` 运行已核查插件，不修改全局信任设置。升级依赖时必须重新检查。
 
@@ -50,6 +62,7 @@ SwiftTerm 1.19.0 包含生成自身 Git 版本信息的 build-tool plugin。已�
 - iPhone：服务器、终端、设置三页导航。终端为独立页面，文件和监控通过 Sheet 打开。
 - iPad：NavigationSplitView 侧栏与终端工作区；文件、监控和设置使用适合触控的独立 Sheet。窄窗口自动采用紧凑布局。
 - “新建连接”支持密码和通过文件选择器导入 OpenSSH Ed25519 私钥（可含口令）。可只保存非秘密配置，也可保存后连接；“将认证信息保存在本机 Keychain”默认关闭，不记住的凭据只用于本次连接。
+- “设置 → 通用 → 配置备份”支持通过加密文件导入、导出主机、分组、标签、连接选项及已保存的密码/私钥/私钥口令；独立备份密码至少 12 个字符。导入先解密预览再确认，重复主机保留本机配置，凭据仅写入本机 Keychain；详细范围与合并规则见 [加密配置备份](docs/CONFIGURATION-BACKUP.md)。
 - 连接表单的“文件与服务模式”只建立认证后的 SSH transport，不请求 PTY 或 shell，供 SFTP 和服务器支持的服务/监控使用；受限账号是否允许 SFTP、exec 仍由服务器决定。
 - 跳板机选择一台已保存的直连主机，两端分别验证主机指纹并认证。暂不支持多跳；缺失跳板机、凭据或目标信任时明确失败，不降级直连。未保存连接重新打开时保留路由和模式。
 - 交互式认证支持 keyboard-interactive，以及密码/密钥被服务器部分接受后继续验证 MFA。逐轮显示确切账号、地址和服务器原始提示；答案只用于当前请求，不保存。关闭、取消或 iOS 后台会取消未完成认证。
@@ -108,7 +121,7 @@ IPAD_DESTINATION='platform=iOS Simulator,id=<你的 iPad UDID>' \
 ./scripts/verify.sh --ui
 ```
 
-日志和 `.xcresult` 在 `build/`。SSH、主机与文件/监控截图原样导出至忽略的 `build/phase1-screenshots/`、`build/phase2-screenshots/`、`build/phase3-screenshots/`，避免终端内容进入 Git；历史界面截图保留在本地，不纳入仓库。UI 自动化使用独立偏好域和独立 SwiftData 路径，不修改实际主机库。macOS 鼠标自动化运行时请保持桌面空闲。阶段记录见 [Phase 0](docs/PHASE0-VALIDATION.md)、[Phase 1](docs/PHASE1-VALIDATION.md)、[Phase 2](docs/PHASE2-VALIDATION.md)。
+日志和 `.xcresult` 在 `build/`。SSH、主机与文件/监控截图原样导出至忽略的 `build/phase1-screenshots/`、`build/phase2-screenshots/`、`build/phase3-screenshots/`，避免终端内容进入 Git；历史界面和测试截图保留在本地。公开展示图单独存放在 `docs/readme-images/`。UI 自动化使用独立偏好域和独立 SwiftData 路径，不修改实际主机库。macOS 鼠标自动化运行时请保持桌面空闲。阶段记录见 [Phase 0](docs/PHASE0-VALIDATION.md)、[Phase 1](docs/PHASE1-VALIDATION.md)、[Phase 2](docs/PHASE2-VALIDATION.md)。
 
 模拟器测试需要保留 ad-hoc 代码签名以正常使用系统 Keychain；脚本使用 `CODE_SIGN_IDENTITY=- CODE_SIGNING_ALLOWED=YES`，不填写虚构 Team 或证书。真机仍需用户在 Xcode 配置真实签名。macOS 的默认派生目录在系统临时目录中，可用 `MAC_BUILD_DIR` 覆盖。Apple 构建/测试脚本互斥运行，避免同一 App 被并发安装或替换。
 
