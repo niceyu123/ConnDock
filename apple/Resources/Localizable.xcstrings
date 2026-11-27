@@ -4577,13 +4577,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hosts, groups, and tags are stored locally. Passwords and private keys are saved in this device’s Keychain only when you choose, never in the regular database or exported through MCP."
+            "value" : "Hosts, groups, and tags are stored locally. Passwords and private keys are saved in this device’s Keychain only when you choose, never in the regular database or exported through MCP. Configuration backups you explicitly export include saved credentials and are encrypted with a separate backup password."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "主机、分组和标签保存在本机。密码和私钥按你的选择存入本机 Keychain，不写入普通数据库，也不通过 MCP 导出。"
+            "value" : "主机、分组和标签保存在本机。密码和私钥按你的选择存入本机 Keychain，不写入普通数据库，也不通过 MCP 导出。你主动导出的配置备份包含已保存凭据，并使用独立备份密码加密。"
           }
         }
       }
@@ -5384,7 +5384,8 @@
             "value" : "系统等宽字体"
           }
         }
-      }
+      },
+      "extractionState" : "stale"
     },
     "settings.terminal" : {
       "extractionState" : "manual",
@@ -5551,6 +5552,23 @@
         }
       }
     },
+    "sftp.clearFilter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Filter"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除筛选"
+          }
+        }
+      }
+    },
     "sftp.clearFinished" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5564,6 +5582,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "清除已结束"
+          }
+        }
+      }
+    },
+    "sftp.copyPath" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Remote Path"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制远程路径"
           }
         }
       }
@@ -5630,6 +5665,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "松开以上传文件"
+          }
+        }
+      }
+    },
+    "sftp.editPath" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Remote Path"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑远程路径"
           }
         }
       }
@@ -5803,6 +5855,40 @@
         }
       }
     },
+    "sftp.filter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter by Filename"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按文件名筛选"
+          }
+        }
+      }
+    },
+    "sftp.goToPath" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to Directory"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前往目录"
+          }
+        }
+      }
+    },
     "sftp.home" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5883,6 +5969,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "当前服务器暂无收藏路径"
+          }
+        }
+      }
+    },
+    "sftp.noFilterResults" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching files"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有匹配的文件"
           }
         }
       }
@@ -6019,6 +6122,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "上级目录"
+          }
+        }
+      }
+    },
+    "sftp.pathField" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remote Path"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "远程路径"
           }
         }
       }
@@ -7105,6 +7225,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "新建连接，验证服务器身份后打开 SSH 终端。"
+          }
+        }
+      }
+    },
+    "terminal.find.close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close Find"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭查找"
+          }
+        }
+      }
+    },
+    "terminal.find.match" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Match found"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "找到匹配"
+          }
+        }
+      }
+    },
+    "terminal.find.next" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Match"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下一个匹配"
+          }
+        }
+      }
+    },
+    "terminal.find.noMatch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matches"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无匹配结果"
+          }
+        }
+      }
+    },
+    "terminal.find.previous" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous Match"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上一个匹配"
+          }
+        }
+      }
+    },
+    "terminal.find.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find in Terminal"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "终端内查找"
           }
         }
       }
@@ -8446,6 +8668,635 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在系统终端手动运行以上命令并加载密钥，再使用相同 SSH_AUTH_SOCK 运行 ssh-add -l，填写其显示的公钥指纹。系统登录 Agent 的 Socket 可能被 App Sandbox 阻止；建议使用容器内专用 Agent。应用不会执行这些设置命令。"
+          }
+        }
+      }
+    },
+    "terminalFont.courier" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Courier"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Courier"
+          }
+        }
+      }
+    },
+    "terminalFont.jetBrainsMono" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JetBrains Mono"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JetBrains Mono"
+          }
+        }
+      }
+    },
+    "terminalFont.menlo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menlo"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menlo"
+          }
+        }
+      }
+    },
+    "terminalFont.system" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Monospaced"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统等宽字体"
+          }
+        }
+      }
+    },
+    "backup.complete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Complete"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入完成"
+          }
+        }
+      }
+    },
+    "backup.confirmImport" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm Import"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认导入"
+          }
+        }
+      }
+    },
+    "backup.confirmPassword" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm backup password"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再次输入备份密码"
+          }
+        }
+      }
+    },
+    "backup.credentials" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved Credentials"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已保存的凭据"
+          }
+        }
+      }
+    },
+    "backup.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back up hosts, groups, tags, connection options, and saved passwords, private keys, and key passphrases. Backup files are always encrypted."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份主机、分组、标签、连接选项及已保存的密码、私钥和私钥口令。备份文件始终加密。"
+          }
+        }
+      }
+    },
+    "backup.duplicatesDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hosts with the same address, port, and username are skipped, keeping local settings and credentials. Groups with the same name are merged. Importing does not connect, restore host trust, or grant MCP access. If iCloud sync is enabled, new nonsecret configuration syncs normally."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按地址、端口和用户名识别重复主机并跳过，保留本机配置和凭据；同名分组合并。导入不会自动连接，也不会恢复主机信任或 MCP 授权。已开启 iCloud 同步时，新增的非机密配置会正常同步。"
+          }
+        }
+      }
+    },
+    "backup.error.invalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The backup is invalid or contains unsupported data. No configuration was imported."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份文件无效或内容不受支持。未导入任何配置。"
+          }
+        }
+      }
+    },
+    "backup.error.limit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The backup exceeds the limit of 1,000 hosts, 256 groups, or a 24 MB file."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份超出限制：最多 1000 台主机、256 个分组、24 MB 文件。"
+          }
+        }
+      }
+    },
+    "backup.error.password" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The backup password must contain at least 12 characters and at most 1,024 UTF-8 bytes."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份密码必须至少包含 12 个字符，且不超过 1024 个 UTF-8 字节。"
+          }
+        }
+      }
+    },
+    "backup.error.read" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected backup could not be read. Check file access and try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法读取所选备份，请确认文件可访问后重试。"
+          }
+        }
+      }
+    },
+    "backup.error.route" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A jump host reference is invalid or conflicts with a local jump host. No configuration was imported. Check jump host settings first."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳板机引用无效，或与本机已有跳板配置冲突。未导入任何配置；请先检查跳板设置。"
+          }
+        }
+      }
+    },
+    "backup.error.unlock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The backup password is incorrect, or the file is damaged or has been modified."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份密码错误，或文件已损坏或被修改。"
+          }
+        }
+      }
+    },
+    "backup.error.version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This backup version is unsupported. Use a compatible version of ConnDock."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂不支持此备份版本，请使用与导出设备兼容的 ConnDock 版本。"
+          }
+        }
+      }
+    },
+    "backup.error.write" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The encrypted backup could not be exported. Check the destination and try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法导出加密备份，请检查目标位置后重试。"
+          }
+        }
+      }
+    },
+    "backup.export" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export Configuration…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出配置…"
+          }
+        }
+      }
+    },
+    "backup.exported" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encrypted configuration backup exported."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加密配置备份已导出。"
+          }
+        }
+      }
+    },
+    "backup.groups" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Groups"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分组"
+          }
+        }
+      }
+    },
+    "backup.hosts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hosts"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机"
+          }
+        }
+      }
+    },
+    "backup.import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Configuration…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入配置…"
+          }
+        }
+      }
+    },
+    "backup.importDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the password used when exporting. Review the decrypted backup before importing. Credentials are saved only to this device’s Keychain. SSH Agent access must be configured on this device."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入导出时设置的备份密码。解密后先预览，再确认导入；凭据仅写入本机 Keychain。SSH Agent 需要在本机重新配置。"
+          }
+        }
+      }
+    },
+    "backup.importedCredentials" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Credentials Imported"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入凭据"
+          }
+        }
+      }
+    },
+    "backup.importedGroups" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Groups Added"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增分组"
+          }
+        }
+      }
+    },
+    "backup.importedHosts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hosts Added"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增主机"
+          }
+        }
+      }
+    },
+    "backup.mismatch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The backup passwords do not match."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "两次输入的备份密码不一致。"
+          }
+        }
+      }
+    },
+    "backup.password" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup password"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份密码"
+          }
+        }
+      }
+    },
+    "backup.passwordDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a backup password with at least 12 characters and keep it safe. Forgotten passwords cannot be recovered. Unsaved credentials, host trust, MCP permissions, sessions, and device preferences are excluded."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请设置至少 12 个字符的备份密码，并妥善保管。忘记后无法恢复备份。未保存的密码、主机信任、MCP 授权、会话和本机偏好不包含在备份中。"
+          }
+        }
+      }
+    },
+    "backup.preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Preview"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入预览"
+          }
+        }
+      }
+    },
+    "backup.processing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processing…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在处理…"
+          }
+        }
+      }
+    },
+    "backup.reading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading backup…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在读取备份…"
+          }
+        }
+      }
+    },
+    "backup.skippedHosts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duplicate Hosts Skipped"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳过重复主机"
+          }
+        }
+      }
+    },
+    "backup.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuration Backup"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置备份"
+          }
+        }
+      }
+    },
+    "backup.unlock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "预览"
+          }
+        }
+      }
+    },
+    "backup.exportAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出"
           }
         }
       }

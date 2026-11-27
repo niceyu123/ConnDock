@@ -2,6 +2,12 @@ import SSHCoreBridge
 import SwiftUI
 import UniformTypeIdentifiers
 
+#if os(macOS)
+  import AppKit
+#else
+  import UIKit
+#endif
+
 struct FilesPanel: View {
   @Environment(AppPreferences.self) private var preferences
   @Environment(WorkspaceState.self) private var workspace
@@ -154,28 +160,44 @@ private struct RemoteFileBrowser: View {
   @State private var uploadDestination: UploadDestination?
   @State private var pendingUploads: [FileUploadSource] = []
   @State private var isDropTargeted = false
+  @State private var pathDraft: String?
+  @State private var showsFilter = false
+  @State private var fileFilter = ""
+  @FocusState private var field: BrowserField?
+
+  private enum BrowserField { case path, filter }
+
+  private func matchesFilter(_ name: String) -> Bool {
+    fileFilter.isEmpty || name.localizedCaseInsensitiveContains(fileFilter)
+  }
 
   var body: some View {
     let destination = model.uploadDestination
+    let visibleEntries = model.entries.filter { matchesFilter($0.name) }
     VStack(spacing: 0) {
-      HStack(spacing: 8) {
-        IconButton(key: "sftp.parent", symbol: "arrow.up") {
-          model.browse(RemotePaths.parent(model.path ?? "/"))
+      Group {
+        if let pathDraft {
+          pathEditor(pathDraft)
+        } else {
+          HStack(spacing: 8) {
+            IconButton(key: "sftp.parent", symbol: "arrow.up") {
+              model.browse(RemotePaths.parent(model.path ?? "/"))
+            }
+            .disabled(model.path == nil || model.path == "/")
+            IconButton(key: "sftp.home", symbol: "house") { model.browse(".") }
+            breadcrumbs
+            IconButton(key: "sftp.editPath", symbol: "pencil") {
+              pathDraft = model.failedBrowsePath ?? model.path ?? "/"
+            }
+            .accessibilityIdentifier("sftp.editPath")
+            bookmarkControls
+            IconButton(key: "sftp.refresh", symbol: "arrow.clockwise") { model.browse() }
+              .accessibilityIdentifier("sftp.refresh")
+          }
         }
-        .disabled(model.path == nil || model.path == "/" || model.isLoading)
-        IconButton(key: "sftp.home", symbol: "house") { model.browse(".") }
-        Text(verbatim: model.path ?? preferences.text("sftp.noPath"))
-          .font(.caption.monospaced()).lineLimit(1).truncationMode(.middle)
-          .textSelection(.enabled).accessibilityIdentifier("sftp.currentPath")
-          .accessibilityLabel(model.path ?? preferences.text("sftp.noPath"))
-          .accessibilityValue(model.path ?? "")
-        Spacer(minLength: 0)
-        bookmarkControls
-        IconButton(key: "sftp.refresh", symbol: "arrow.clockwise") { model.browse() }
-          .accessibilityIdentifier("sftp.refresh")
       }
       .padding(.horizontal, 12).padding(.vertical, 4)
-      .disabled(!model.isConnected)
+      .disabled(!model.isConnected || model.isLoading)
       HStack(spacing: 14) {
         Button {
           editingEntry = nil
@@ -184,6 +206,7 @@ private struct RemoteFileBrowser: View {
         } label: {
           SymbolLabel(key: "sftp.newDirectory", symbol: "folder.badge.plus")
         }
+        .disabled(destination == nil)
         .accessibilityIdentifier("sftp.newDirectory")
         Button {
           model.showUploadImporter = true
@@ -191,6 +214,7 @@ private struct RemoteFileBrowser: View {
         } label: {
           SymbolLabel(key: "action.upload", symbol: "square.and.arrow.up")
         }
+        .disabled(destination == nil)
         .accessibilityIdentifier("sftp.upload")
         Button {
           model.download()
@@ -200,10 +224,17 @@ private struct RemoteFileBrowser: View {
         .disabled(!model.canDownloadSelection).accessibilityIdentifier("sftp.download")
         Spacer(minLength: 0)
         if model.isLoading { ProgressView().controlSize(.small) }
+        IconButton(key: "sftp.filter", symbol: "line.3.horizontal.decrease") {
+          showsFilter.toggle()
+          if !showsFilter { fileFilter = "" }
+        }
+        .accessibilityAddTraits(showsFilter ? .isSelected : [])
+        .accessibilityIdentifier("sftp.filterToggle")
       }
       .font(.caption).buttonStyle(.borderless)
       .padding(.horizontal, 16).padding(.vertical, 6)
-      .disabled(!model.isConnected || model.isLoading || model.path == nil)
+      .disabled(!model.isConnected || model.isLoading || model.path == nil || pathDraft != nil)
+      if showsFilter, pathDraft == nil { filterEditor }
       Divider()
       #if os(macOS)
         if model.isConnected {
@@ -220,7 +251,7 @@ private struct RemoteFileBrowser: View {
           Image(systemName: "exclamationmark.triangle").foregroundStyle(.orange)
           Copy(error).font(.caption).fixedSize(horizontal: false, vertical: true)
           Spacer()
-          Button(preferences.text("action.retry")) { model.browse() }
+          Button(preferences.text("action.retry")) { model.retryBrowse() }
         }
         .padding(12).accessibilityIdentifier("sftp.error")
       }
@@ -235,18 +266,31 @@ private struct RemoteFileBrowser: View {
         EmptyPanel(
           symbol: "folder", title: "sftp.emptyDirectory", detail: "sftp.emptyDirectoryDetail",
           compact: true)
+      } else if visibleEntries.isEmpty {
+        Copy("sftp.noFilterResults").font(.callout).foregroundStyle(.secondary)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
       } else {
         List {
-          ForEach(model.entries, id: \.name) { entry in
+          ForEach(visibleEntries, id: \.name) { entry in
             fileRow(entry)
               .listRowBackground(
                 model.selectedName == entry.name ? Color.primary.opacity(0.07) : .clear)
           }
         }
         .listStyle(.plain).scrollContentBackground(.hidden)
-        .disabled(model.isLoading)
+        .disabled(model.isLoading || pathDraft != nil)
         .accessibilityIdentifier("sftp.directoryList")
       }
+    }
+    .onChange(of: model.path) { _, _ in fileFilter = "" }
+    .onChange(of: model.isConnected) { _, connected in
+      if !connected { pathDraft = nil }
+    }
+    .onChange(of: fileFilter) { _, _ in
+      if let name = model.selectedName, !matchesFilter(name) { model.selectedName = nil }
+    }
+    .onChange(of: model.selectedName) { _, name in
+      if let name, !matchesFilter(name) { fileFilter = "" }
     }
     .contentShape(Rectangle())
     .dropDestination(for: URL.self) { urls, _ in
@@ -348,6 +392,116 @@ private struct RemoteFileBrowser: View {
           model.entries.contains { $0.name == source.url.lastPathComponent }
         }.map { $0.url.lastPathComponent }.joined(separator: "\n"))
       Copy("sftp.overwriteDetail")
+    }
+  }
+
+  private var breadcrumbs: some View {
+    ScrollViewReader { scroll in
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack(spacing: 4) {
+          if let path = model.path {
+            let ancestors = RemotePaths.breadcrumbs(path)
+            ForEach(ancestors.dropLast(), id: \.self) { ancestor in
+              Button {
+                model.browse(ancestor)
+              } label: {
+                Text(verbatim: pathComponent(ancestor))
+                  .lineLimit(1).truncationMode(.middle).frame(maxWidth: 150)
+                  .padding(.vertical, 6)
+              }
+              .buttonStyle(.borderless).help(ancestor)
+              .accessibilityLabel(ancestor)
+              Image(systemName: "chevron.right").font(.system(size: 7))
+                .foregroundStyle(.secondary).accessibilityHidden(true)
+            }
+            Text(verbatim: pathComponent(path)).fontWeight(.medium)
+              .lineLimit(1).truncationMode(.middle).frame(maxWidth: 200)
+              .accessibilityLabel(path).accessibilityValue(path)
+              .accessibilityIdentifier("sftp.currentPath")
+              .id(path)
+              .help(path)
+              .contextMenu {
+                Button(preferences.text("sftp.copyPath")) {
+                  #if os(macOS)
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(path, forType: .string)
+                  #else
+                    UIPasteboard.general.string = path
+                  #endif
+                }
+              }
+          } else {
+            Copy("sftp.noPath").foregroundStyle(.secondary).lineLimit(1)
+          }
+        }
+        .font(.caption.monospaced())
+      }
+      .task(id: model.path) {
+        if let path = model.path { scroll.scrollTo(path, anchor: .trailing) }
+      }
+    }
+    .frame(maxWidth: .infinity)
+  }
+
+  private func pathComponent(_ path: String) -> String {
+    path.split(separator: "/").last.map(String.init) ?? "/"
+  }
+
+  private func pathEditor(_ draft: String) -> some View {
+    let destination = try? RemotePaths.navigationPath(draft, relativeTo: model.path)
+    let submit = {
+      guard let destination else { return }
+      pathDraft = nil
+      model.browse(destination)
+    }
+    return VStack(alignment: .leading, spacing: 4) {
+      HStack(spacing: 6) {
+        TextField(
+          preferences.text("sftp.pathField"),
+          text: Binding(get: { pathDraft ?? "" }, set: { pathDraft = $0 })
+        )
+        .font(.callout.monospaced()).textFieldStyle(.roundedBorder)
+        .autocorrectionDisabled().submitLabel(.go)
+        #if os(iOS)
+          .textInputAutocapitalization(.never)
+        #endif
+        .focused($field, equals: .path)
+        .accessibilityIdentifier("sftp.pathField")
+        .onSubmit(submit)
+        .onKeyPress(.escape) {
+          pathDraft = nil
+          return .handled
+        }
+        IconButton(key: "sftp.goToPath", symbol: "arrow.right", action: submit)
+          .disabled(destination == nil).accessibilityIdentifier("sftp.pathSubmit")
+        IconButton(key: "action.cancel", symbol: "xmark") { pathDraft = nil }
+      }
+      if !draft.isEmpty, destination == nil {
+        Copy("remote.error.invalidPath").font(.caption).foregroundStyle(.red)
+      }
+    }
+    .task {
+      await Task.yield()
+      if !Task.isCancelled { field = .path }
+    }
+  }
+
+  private var filterEditor: some View {
+    HStack(spacing: 6) {
+      TextField(preferences.text("sftp.filter"), text: $fileFilter)
+        .textFieldStyle(.roundedBorder).autocorrectionDisabled()
+        #if os(iOS)
+          .textInputAutocapitalization(.never)
+        #endif
+        .focused($field, equals: .filter)
+        .accessibilityIdentifier("sftp.filterField")
+      IconButton(key: "sftp.clearFilter", symbol: "xmark.circle") { fileFilter = "" }
+        .disabled(fileFilter.isEmpty)
+    }
+    .padding(.horizontal, 12).padding(.vertical, 4)
+    .task {
+      await Task.yield()
+      if !Task.isCancelled { field = .filter }
     }
   }
 
@@ -516,10 +670,12 @@ private struct RemoteFileBrowser: View {
         editingDirectory = directory
         showNameEditor = true
       }
+      .disabled(model.uploadDestination == nil)
       Button(preferences.text("action.delete"), role: .destructive) {
         deletingEntry = entry
         deletingDirectory = directory
       }
+      .disabled(model.uploadDestination == nil)
     }
     .accessibilityIdentifier("sftp.entry.\(entry.name)")
   }

@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import SSHCoreBridge
+import SwiftTerm
 
 #if os(macOS)
   import AppKit
@@ -30,7 +31,10 @@ enum WorkspaceTool: String, Identifiable {
 public final class WorkspaceState {
   let commandLibrary = CommandLibrary()
   public private(set) var tabs: [WorkspaceTab]
-  public var selection: UUID
+  public var selection: UUID {
+    didSet { if selection != oldValue { terminalFindRequest = nil } }
+  }
+  private(set) var terminalFindRequest: UUID?
   private(set) var terminalSplits: [TerminalSplit] = []
   public var showNewHost = false
   public var searchFocused = false
@@ -65,6 +69,7 @@ public final class WorkspaceState {
     guard isBackgrounded != backgrounded else { return }
     applicationRevision &+= 1
     isBackgrounded = backgrounded
+    if backgrounded { terminalFindRequest = nil }
     for session in sessions.values {
       if backgrounded { session.enterBackground() } else { session.restoreForeground() }
     }
@@ -269,6 +274,33 @@ public final class WorkspaceState {
   }
 
   var selectedSession: TerminalSession? { sessions[selection] }
+
+  var canFindTerminal: Bool {
+    #if os(macOS)
+      if localShells[selection] != nil { return true }
+    #endif
+    guard let session = selectedSession, !session.connectionOptions.filesOnly else { return false }
+    return session.isConnected || session.receivedBytes > 0
+  }
+
+  var terminalFindView: TerminalView? {
+    guard terminalFindRequest != nil, canFindTerminal else { return nil }
+    #if os(macOS)
+      if let shell = localShells[selection] { return shell.view }
+    #endif
+    return selectedSession?.surface.view
+  }
+
+  func showTerminalFind() {
+    guard canFindTerminal, !isBackgrounded else { return }
+    terminalFindRequest = UUID()
+  }
+
+  func dismissTerminalFind() {
+    terminalFindRequest = nil
+    activateTerminal(selection)
+  }
+
   #if os(macOS)
     func localShell(for tabID: UUID) -> LocalShellSession? { localShells[tabID] }
   #endif
@@ -292,6 +324,7 @@ public final class WorkspaceState {
       if current.isActive { addTerminal() } else { current.close() }
     }
     let id = selection
+    terminalFindRequest = nil
     if let index = tabs.firstIndex(where: { $0.id == id }) { tabs[index].title = target.title }
     let session = TerminalSession(
       id: UUID(), target: target, sourceHostID: sourceHostID, isConnectionTest: testOnly,

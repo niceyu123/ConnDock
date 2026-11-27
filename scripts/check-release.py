@@ -136,6 +136,9 @@ def validate_profile(profile, bundle, platform, signed_entitlements=None, certif
             require(signed is not None and allowed is not None, 'PROFILE_CLOUDKIT')
             requested = signed if isinstance(signed, list) else [signed]
             authorized = allowed if isinstance(allowed, list) else [allowed]
+            # App Store profiles can wildcard the service even when the app claims only CloudKit.
+            if key == 'com.apple.developer.icloud-services' and authorized == ['*'] and requested == ['CloudKit']:
+                continue
             require(all(item in authorized for item in requested), 'PROFILE_CLOUDKIT')
     if certificate is not None:
         certificates = profile.get('DeveloperCertificates')
@@ -189,7 +192,7 @@ def signature(bundle):
     # or print profile/certificate contents; the temporary directory is removed.
     with tempfile.TemporaryDirectory(prefix='ConnDock-release-cert-') as directory:
         prefix = str(Path(directory) / 'certificate')
-        command(['/usr/bin/codesign', '-d', '--extract-certificates', prefix, str(bundle)])
+        command(['/usr/bin/codesign', '-d', '--extract-certificates=' + prefix, str(bundle)])
         leaf = Path(prefix + '0').read_bytes()
     return plistlib.loads(raw[start:]), leaf
 

@@ -359,4 +359,111 @@ final class HostLibrary {
     let referenced = Set(hosts.compactMap(\.credentialRef))
     for reference in pending where !referenced.contains(reference) { await retire(reference) }
   }
+
+  /// Stage new Keychain items first, then commit all metadata and sync outbox together.
+  /// Existing hosts/credentials are never overwritten. New IDs cannot inherit MCP approvals.
+  func importConfiguration(_ snapshot: ConfigurationSnapshot) async throws
+    -> ConfigurationImportReport
+  {
+    try snapshot.validate()
+    try beginRemoteMerge()
+    defer { endRemoteMerge() }
+    var stagedReferences: [String] = []
+    do {
+      var report = ConfigurationImportReport()
+      var mapping: [UUID: UUID] = [:]
+      var newHosts: [(ConfigurationSnapshot.Host, StoredHost)] = []
+      for item in snapshot.hosts {
+        let value = item.configuration
+        // Endpoint identity is deliberately independent of aliases and credentials.
+        let duplicate =
+          hosts.first {
+            $0.hostname.caseInsensitiveCompare(value.hostname) == .orderedSame
+              && $0.port == value.port && $0.username == value.username
+          }
+          ?? newHosts.first {
+            $0.1.hostname.caseInsensitiveCompare(value.hostname) == .orderedSame
+              && $0.1.port == value.port && $0.1.username == value.username
+          }?.1
+        if let duplicate {
+          mapping[item.id] = duplicate.id
+          report.skippedHosts += 1
+        } else {
+          let row = StoredHost(
+            displayName: value.displayName, hostname: value.hostname, port: value.port,
+            username: value.username, authMethod: value.authMethod,
+            notes: value.notes, favorite: value.favorite)
+          row.sortIndex = value.sortIndex
+          mapping[item.id] = row.id
+          newHosts.append((item, row))
+        }
+      }
+      for (item, _) in newHosts {
+        if let jumpID = item.configuration.connectionOptions?.jumpHostID {
+          guard let mappedID = mapping[jumpID] else { throw ConfigurationArchiveError.route }
+          if let localJump = host(mappedID) {
+            let sourceJump = snapshot.hosts.first { $0.id == jumpID }!
+            guard connectionOptions(for: mappedID).jumpHostID == nil,
+              localJump.authMethod == sourceJump.configuration.authMethod
+            else { throw ConfigurationArchiveError.route }
+          }
+          // A duplicate endpoint inside the backup must not turn a direct jump into a chain.
+          if let newJump = newHosts.first(where: { $0.1.id == mappedID }),
+            newJump.0.configuration.connectionOptions?.jumpHostID != nil
+              || newJump.1.authMethod
+                != snapshot.hosts.first(where: { $0.id == jumpID })?.configuration.authMethod
+          {
+            throw ConfigurationArchiveError.route
+          }
+        }
+      }
+      var groupMapping: [UUID: UUID] = [:]
+      var newGroups: [StoredHostGroup] = []
+      for item in snapshot.groups {
+        if let existing = (groups + newGroups).first(where: {
+          $0.name.localizedCaseInsensitiveCompare(item.configuration.name) == .orderedSame
+        }) {
+          groupMapping[item.id] = existing.id
+        } else {
+          let row = StoredHostGroup(name: item.configuration.name)
+          row.sortIndex = item.configuration.sortIndex
+          groupMapping[item.id] = row.id
+          newGroups.append(row)
+        }
+      }
+      for (item, row) in newHosts {
+        try Task.checkCancellation()
+        if let credential = item.credential {
+          let reference = UUID().uuidString
+          // Also retire the attempted reference if a vault reports a failure after writing.
+          stagedReferences.append(reference)
+          do { try await vault.store(credential, reference: reference) } catch {
+            throw HostLibraryError.credential
+          }
+          row.credentialRef = reference
+          report.importedCredentials += 1
+        }
+      }
+      try Task.checkCancellation()
+      for row in newGroups { context.insert(row) }
+      for (item, row) in newHosts {
+        context.insert(row)
+        row.groupID = item.configuration.groupID.flatMap { groupMapping[$0] }
+        var options = item.configuration.connectionOptions ?? HostConnectionOptions()
+        options.jumpHostID = options.jumpHostID.flatMap { mapping[$0] }
+        guard options.jumpHostID != row.id else { throw ConfigurationArchiveError.route }
+        try setConnectionOptions(options, for: row.id)
+        try setTags(HostTags.normalized(item.configuration.tags ?? []), for: row.id)
+      }
+      try commit(
+        syncChanges: newGroups.map { .group($0.id) } + newHosts.map { .host($0.1.id) })
+      report.importedHosts = newHosts.count
+      report.importedGroups = newGroups.count
+      return report
+    } catch {
+      context.rollback()
+      for reference in stagedReferences { await retire(reference) }
+      throw error
+    }
+  }
 }

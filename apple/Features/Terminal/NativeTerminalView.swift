@@ -1,5 +1,45 @@
+import CoreText
 import SwiftTerm
 import SwiftUI
+
+#if os(macOS)
+  import AppKit
+  typealias TerminalNativeFont = NSFont
+#else
+  import UIKit
+  typealias TerminalNativeFont = UIFont
+#endif
+
+extension TerminalFont {
+  private var fontName: String? {
+    switch self {
+    case .system: nil
+    case .jetBrainsMono: "JetBrainsMono-Regular"
+    case .menlo: "Menlo-Regular"
+    case .courier: "Courier"
+    }
+  }
+
+  static var available: [TerminalFont] {
+    _ = registerBundledFont
+    return allCases.filter { font in
+      guard let name = font.fontName else { return true }
+      return TerminalNativeFont(name: name, size: 13) != nil
+    }
+  }
+
+  private static let registerBundledFont: Void = {
+    guard let url = Bundle.module.url(forResource: "JetBrainsMono-Regular", withExtension: "ttf")
+    else { return }
+    CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+  }()
+
+  func nativeFont(size: CGFloat) -> TerminalNativeFont {
+    _ = Self.registerBundledFont
+    return fontName.flatMap { TerminalNativeFont(name: $0, size: size) }
+      ?? .monospacedSystemFont(ofSize: size, weight: .regular)
+  }
+}
 
 /// One native terminal per live session preserves its screen when tabs change.
 @MainActor
@@ -66,6 +106,7 @@ struct NativeTerminalView {
   let accessibilityText: String
   var session: TerminalSession?
   var fontSize: CGFloat = 13
+  var font: TerminalFont = .system
 }
 
 #if os(macOS)
@@ -79,8 +120,9 @@ struct NativeTerminalView {
     }
 
     func updateNSView(_ view: TerminalView, context: Context) {
-      if abs(view.font.pointSize - fontSize) > 0.01 {
-        view.font = .monospacedSystemFont(ofSize: fontSize, weight: .regular)
+      let desiredFont = font.nativeFont(size: fontSize)
+      if view.font != desiredFont {
+        view.font = desiredFont
       }
       let palette = WorkspacePalette(scheme: scheme)
       view.nativeBackgroundColor = NSColor(palette.terminal)
@@ -103,8 +145,9 @@ struct NativeTerminalView {
     }
 
     func updateUIView(_ view: TerminalView, context: Context) {
-      if abs(view.font.pointSize - fontSize) > 0.01 {
-        view.font = .monospacedSystemFont(ofSize: fontSize, weight: .regular)
+      let desiredFont = font.nativeFont(size: fontSize)
+      if view.font != desiredFont {
+        view.font = desiredFont
       }
       let palette = WorkspacePalette(scheme: scheme)
       view.nativeBackgroundColor = UIColor(palette.terminal)

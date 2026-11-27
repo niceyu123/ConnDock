@@ -370,6 +370,11 @@ public struct WorkspaceRoot: View {
             .keyboardShortcut("w")
         }
       }
+      CommandGroup(after: .pasteboard) {
+        Button(preferences.text("terminal.find.title")) { workspace.showTerminalFind() }
+          .keyboardShortcut("f")
+          .disabled(workspaceActive != true || !workspace.canFindTerminal)
+      }
       CommandMenu(preferences.text("layout.title")) {
         Button(preferences.text("terminal.split.horizontal")) {
           workspace.splitSelected(axis: .horizontal)

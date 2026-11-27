@@ -28,6 +28,12 @@ public enum TerminalTheme: String, CaseIterable, Identifiable, Sendable {
   }
 }
 
+public enum TerminalFont: String, CaseIterable, Identifiable, Sendable {
+  case system, jetBrainsMono, menlo, courier
+  public var id: String { rawValue }
+  var titleKey: String { "terminalFont.\(rawValue)" }
+}
+
 @MainActor @Observable
 public final class AppPreferences {
   @ObservationIgnored private let defaults: UserDefaults
@@ -40,6 +46,9 @@ public final class AppPreferences {
   }
   public var terminalTheme: TerminalTheme {
     didSet { defaults.set(terminalTheme.rawValue, forKey: "terminal.theme") }
+  }
+  public var terminalFont: TerminalFont {
+    didSet { defaults.set(terminalFont.rawValue, forKey: "terminal.font") }
   }
   private var storedTerminalFontSize: Double
   public var terminalFontSize: Double {
@@ -76,6 +85,7 @@ public final class AppPreferences {
     appearance = AppAppearance(rawValue: defaults.string(forKey: "app.appearance") ?? "") ?? .system
     terminalTheme =
       TerminalTheme(rawValue: defaults.string(forKey: "terminal.theme") ?? "") ?? .followApp
+    terminalFont = TerminalFont(rawValue: defaults.string(forKey: "terminal.font") ?? "") ?? .system
     storedTerminalFontSize = Self.dimension(
       defaults.double(forKey: "terminal.fontSize"), fallback: 13, range: 10...24)
     sidebarVisible = defaults.object(forKey: "layout.sidebarVisible") as? Bool ?? true

@@ -60,8 +60,10 @@
         }
         .font(.caption).foregroundStyle(.secondary).padding(8)
         Divider()
-        LocalShellView(session: session, scheme: scheme, fontSize: fontSize)
-          .accessibilityIdentifier("localTerminal")
+        LocalShellView(
+          session: session, scheme: scheme, fontSize: fontSize, font: preferences.terminalFont
+        )
+        .accessibilityIdentifier("localTerminal")
       }
     }
   }
@@ -70,12 +72,14 @@
     let session: LocalShellSession
     let scheme: ColorScheme
     let fontSize: CGFloat
+    let font: TerminalFont
 
     func makeNSView(context: Context) -> LocalProcessTerminalView { session.view }
 
     func updateNSView(_ view: LocalProcessTerminalView, context: Context) {
-      if abs(view.font.pointSize - fontSize) > 0.01 {
-        view.font = .monospacedSystemFont(ofSize: fontSize, weight: .regular)
+      let desiredFont = font.nativeFont(size: fontSize)
+      if view.font != desiredFont {
+        view.font = desiredFont
       }
       let palette = WorkspacePalette(scheme: scheme)
       view.nativeBackgroundColor = NSColor(palette.terminal)

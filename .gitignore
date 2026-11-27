@@ -1,13 +1,20 @@
 .DS_Store
+# Generated build products and test results; test source files remain tracked.
 .build/
 build/
 target/
 DerivedData/
+*.log
 *.xcuserstate
 xcuserdata/
 apple/Packages/SSHCoreBridge/Artifacts/
 apple/Packages/SSHCoreBridge/Sources/SSHCoreBridge/Generated/
 *.xcresult/
+*.xcarchive/
+*.dmg
+*.ipa
+*.pkg
+/ConnDock-*.zip
 .swiftpm/
 !Package.resolved
 
@@ -17,3 +24,4 @@ __pycache__/
 # Local source material and UI captures are not part of the public repository.
 /SSHClient_Codex_开发任务书_V1.2_含MCP_国际化主题.md
 /docs/screenshots/
+/docs/superpowers/

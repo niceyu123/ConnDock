@@ -172,6 +172,7 @@ public struct SettingsScreen: View {
       } footer: {
         Copy("settings.languageDetail")
       }
+      ConfigurationBackupSection()
     case .appearance:
       Section {
         Picker(preferences.text("settings.mode"), selection: $preferences.appearance) {
@@ -184,9 +185,10 @@ public struct SettingsScreen: View {
       }
     case .terminal:
       Section {
-        LabeledContent(preferences.text("settings.terminalFont")) {
-          Copy("settings.systemMonospaced")
+        Picker(preferences.text("settings.terminalFont"), selection: $preferences.terminalFont) {
+          ForEach(TerminalFont.available) { font in Copy(font.titleKey).tag(font) }
         }
+        .accessibilityIdentifier("terminalFontPicker")
         Stepper(value: $preferences.terminalFontSize, in: 10...24, step: 1) {
           HStack {
             Copy("settings.terminalFontSize")

@@ -65,7 +65,8 @@ struct TerminalWorkspace: View {
       let selected = workspace.selection
       await Task.yield()
       guard !Task.isCancelled, workspace.selection == selected,
-        !workspace.showNewHost, !workspace.showGroupEditor, workspace.trustPrompt == nil
+        !workspace.showNewHost, !workspace.showGroupEditor, workspace.trustPrompt == nil,
+        workspace.terminalFindRequest == nil
       else { return }
       workspace.activateTerminal(selected)
     }
@@ -158,6 +159,14 @@ private struct TerminalPane: View {
     VStack(spacing: 0) {
       if showsPaneHeader { paneHeader }
 
+      if tab.id == workspace.selection, let request = workspace.terminalFindRequest,
+        let terminal = workspace.terminalFindView
+      {
+        TerminalFindBar(terminal: terminal, request: request, close: workspace.dismissTerminalFind)
+          .background(palette.panel)
+        Divider()
+      }
+
       if let session, session.isActive {
         HStack(spacing: 8) {
           Circle()
@@ -220,7 +229,8 @@ private struct TerminalPane: View {
           } else if session != nil {
             NativeTerminalView(
               scheme: terminalScheme, accessibilityText: preferences.text("terminal.nativeCanvas"),
-              session: session, fontSize: CGFloat(preferences.terminalFontSize)
+              session: session, fontSize: CGFloat(preferences.terminalFontSize),
+              font: preferences.terminalFont
             )
             .id(session?.id.uuidString ?? "empty.\(tab.id.uuidString)")
             .accessibilityIdentifier("sshTerminal")

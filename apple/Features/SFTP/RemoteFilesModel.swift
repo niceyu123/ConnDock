@@ -18,6 +18,30 @@ enum RemotePaths {
     guard let index = path.lastIndex(of: "/"), index != path.startIndex else { return "/" }
     return String(path[..<index])
   }
+
+  static func navigationPath(_ input: String, relativeTo directory: String?) throws -> String {
+    let path: String
+    if input.hasPrefix("/") || directory == nil {
+      path = input
+    } else {
+      path = "\(directory?.trimmingTrailingSlashes ?? "")/\(input)"
+    }
+    // Leave `..` and symlink resolution to the server and preserve literal whitespace.
+    guard !input.isEmpty, !path.contains("\0"), path.utf8.count <= 16_384 else {
+      throw RemoteFailure.Failure(code: .invalidPath)
+    }
+    return path
+  }
+
+  static func breadcrumbs(_ path: String) -> [String] {
+    var ancestors = ["/"]
+    var prefix = ""
+    for component in path.split(separator: "/") {
+      prefix += "/\(component)"
+      ancestors.append(prefix)
+    }
+    return ancestors
+  }
 }
 
 extension String {
@@ -105,6 +129,7 @@ final class RemoteFilesModel {
   private(set) var isConnected = false
   private(set) var isLoading = false
   private(set) var transfers: [FileTransfer] = []
+  private(set) var failedBrowsePath: String?
   var selectedName: String?
   var errorKey: String?
   var showUploadImporter = false
@@ -155,6 +180,8 @@ final class RemoteFilesModel {
     isLoading = false
   }
 
+  func retryBrowse() { browse(failedBrowsePath) }
+
   func browse(_ requestedPath: String? = nil, selecting name: String? = nil) {
     guard isConnected else { return }
     if let requestedPath, requestedPath != path { locationRevision += 1 }
@@ -171,6 +198,7 @@ final class RemoteFilesModel {
     browsing?.cancel()
     isLoading = true
     errorKey = nil
+    failedBrowsePath = nil
     browsing = Task { [weak self] in
       guard let self else { return }
       do {
@@ -194,7 +222,11 @@ final class RemoteFilesModel {
         }
       } catch {
         guard revision == generation, !Task.isCancelled else { return }
-        entries = []
+        if path == nil || destination == path {
+          entries = []
+          selectedName = nil
+        }
+        failedBrowsePath = destination
         errorKey = remoteErrorKey(error)
         browser?.close()
         browser = nil

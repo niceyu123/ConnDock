@@ -97,6 +97,14 @@
           .accessibilityIdentifier("terminalSplitMenu")
         }
         Button {
+          workspace.showTerminalFind()
+        } label: {
+          SymbolLabel(key: "terminal.find.title", symbol: "magnifyingglass")
+        }
+        .keyboardShortcut("f", modifiers: .command)
+        .disabled(!workspace.canFindTerminal)
+        .accessibilityIdentifier("terminalFindOpen")
+        Button {
           workspace.presentedTool = .files
         } label: {
           SymbolLabel(key: "sftp.files", symbol: "folder")
