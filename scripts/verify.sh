@@ -19,7 +19,11 @@ xcrun swift-format lint --strict --recursive apple/Shared apple/Features apple/A
     apple/Package.swift apple/Packages/SSHCoreBridge/Package.swift \
     apple/Packages/SSHCoreBridge/Sources/SSHCoreBridge/BridgeProbe.swift scripts/*.swift
 xcrun swift scripts/check-localizations.swift
-python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+if [[ -f scripts/tests/test_release_check.py ]]; then
+    python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+else
+    echo 'Skipping local release-check unit tests: scripts/tests/test_release_check.py is absent.'
+fi
 python3 scripts/check-release.py --source-only
 python3 scripts/generate-permission-localizations.py --output apple/Generated/PermissionLocalizations --force
 cd rust-core

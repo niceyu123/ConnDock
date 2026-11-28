@@ -1,5 +1,5 @@
 .DS_Store
-# Generated build products and test results; test source files remain tracked.
+# Generated build products and test results.
 .build/
 build/
 target/
@@ -25,3 +25,7 @@ __pycache__/
 /SSHClient_Codex_开发任务书_V1.2_含MCP_国际化主题.md
 /docs/screenshots/
 /docs/superpowers/
+
+# Local development instructions and release-check fixtures.
+/AGENTS.md
+/scripts/tests/

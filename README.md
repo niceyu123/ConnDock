@@ -16,7 +16,7 @@ ConnDock 是面向 macOS、iPhone 和 iPad 的原生 SSH 客户端，集成多�
 | --- | --- |
 | <img src="docs/readme-images/iphone.png" alt="ConnDock iPhone 界面" width="260"> | <img src="docs/readme-images/ipad.png" alt="ConnDock iPad 界面" width="510"> |
 
-开发规格见 [任务书](docs/requirements.md)，构建与验证约定见 [AGENTS.md](AGENTS.md)。
+开发规格见 [任务书](docs/requirements.md)。
 
 ## 环境与版本
 
@@ -133,7 +133,6 @@ IPAD_DESTINATION='platform=iOS Simulator,id=<你的 iPad UDID>' \
 ## 目录
 
 ```text
-AGENTS.md
 docs/requirements.md              # 唯一有效任务书
 docs/ARCHITECTURE.md              # 架构、职责和边界
 docs/ui/macos-dark.png            # 用户提供的设计参考
